@@ -1,0 +1,757 @@
+/*--------------------------------------------------------------------------/
+* @Author		KulerThemes.com http://www.kulerthemes.com
+* @Copyright	Copyright (C) 2012 - 2013 KulerThemes.com. All rights reserved.
+* @License		KulerThemes.com Proprietary License
+/---------------------------------------------------------------------------*/
+
+/* =============== PREDEFINED COLORS - RED =============== */
+/* DEFAULT HTML - HEADING STYLES */
+.color-red h1 {
+	color: #E55B4C;
+}
+/* DEFAULT HTML - LINK STYLES */
+.color-red a {
+	color: #E55B4C;
+}
+/* DEFAULT HTML - BUTTONS */
+.color-red .button {
+	background-color: #E55B4C;
+}
+/* HEADER */
+.color-red #topbar #currency a {
+	background-color: #E55B4C;
+}
+.color-red #topbar #currency a.current {
+	color: #E55B4C;
+}
+.color-red #topbar #welcome a:hover {
+	color: #E55B4C;
+}
+.color-red #topbar .links a:hover {
+	color: #E55B4C;
+}
+.color-red #header #cart .heading {
+	background-color: #E55B4C;
+}
+.color-red .mini-cart-info .total {
+	color: #E55B4C;
+}
+.color-red .mini-cart-info .name a:hover {
+	color: #E55B4C;
+}
+.color-red .mini-cart-total .total {
+	color: #E55B4C;
+}
+/* MENU */
+.color-red #menu {
+	background-color: #E55B4C;
+}
+.color-red .mainmenu ul li:hover > a,
+.color-red .mainmenu ul li.active > a {
+	color: #E55B4C;
+}
+/* BREADCRUMB */
+.color-red .breadcrumb {
+	border-bottom: 1px solid #E55B4C;
+}
+.color-red .breadcrumb a:last-child:before {
+	background-color: #E55B4C;
+}
+.color-red .breadcrumb a:last-child {
+	color: #E55B4C;
+}
+/* BOX */
+.color-red .box-heading {
+	border-bottom: 1px solid #E55B4C;
+}
+/* TREEMENU */
+.color-red .treemenu li a:hover,
+.color-red .treemenu li a.active {
+	color: #E55B4C;
+}
+/* PAGINATION */
+.color-red .pagination .links b {
+	background-color: #E55B4C;
+}
+.color-red .pagination .links a:hover {
+	background-color: #E55B4C;
+}
+/* BOX PRODUCTS */
+.color-red .box-product .price {
+	color: #E55B4C;
+}
+/* PRODUCTS LIST */
+.color-red .product-list > div:hover {
+	border-color: #E55B4C;
+}
+.color-red .product-list > div:hover .name a {
+	color: #E55B4C;
+}
+.color-red .product-list .cart a {
+	background-color: #E55B4C;
+}
+/* hover */
+.color-red .product-list .wishlist a:hover,
+.color-red .product-list .compare a:hover {
+	color: #E55B4C;
+}
+/* PRODUCTS GRID */
+.color-red .product-grid .cart a {
+	color: #E55B4C;
+}
+.color-red .product-grid .cart a:before {
+	background-color: #E55B4C;
+}
+.color-red .product-grid .cart a span:before {
+	background-color: #E55B4C;
+}
+/* hover */
+.color-red .product-grid .price-label div {
+	background-color: #E55B4C;
+	
+}
+/* TABS */
+.color-red .htabs a:hover {
+	color: #E55B4C;
+}
+/* CATEGORY */
+.color-red .product-filter .display span {
+	color: #E55B4C;
+}
+/* PRODUCT */
+.color-red .product-info .price {
+	color: #E55B4C;
+}
+/* CHECKOUT */
+.color-red .checkout-heading {
+	background-color: #E55B4C;
+}
+/* BOTTOM */
+.color-red #bottom h3 {
+	border-bottom: 1px solid #E55B4C;
+}
+/* =============== PREDEFINED COLORS - YELLOW =============== */
+/* DEFAULT HTML - HEADING STYLES */
+.color-yellow h1 {
+	color: #FFB400;
+}
+/* DEFAULT HTML - LINK STYLES */
+.color-yellow a {
+	color: #FFB400;
+}
+/* DEFAULT HTML - BUTTONS */
+.color-yellow .button {
+	background-color: #FFB400;
+}
+/* HEADER */
+.color-yellow #topbar #currency a {
+	background-color: #FFB400;
+}
+.color-yellow #topbar #currency a.current {
+	color: #FFB400;
+}
+.color-yellow #topbar #welcome a:hover {
+	color: #FFB400;
+}
+.color-yellow #topbar .links a:hover {
+	color: #FFB400;
+}
+.color-yellow #header #cart .heading {
+	background-color: #FFB400;
+}
+.color-yellow .mini-cart-info .total {
+	color: #FFB400;
+}
+.color-yellow .mini-cart-info .name a:hover {
+	color: #FFB400;
+}
+.color-yellow .mini-cart-total .total {
+	color: #FFB400;
+}
+/* MENU */
+.color-yellow #menu {
+	background-color: #FFB400;
+}
+.color-yellow .mainmenu ul li:hover > a,
+.color-yellow .mainmenu ul li.active > a {
+	color: #FFB400;
+}
+/* BREADCRUMB */
+.color-yellow .breadcrumb {
+	border-bottom: 1px solid #FFB400;
+}
+.color-yellow .breadcrumb a:last-child:before {
+	background-color: #FFB400;
+}
+.color-yellow .breadcrumb a:last-child {
+	color: #FFB400;
+}
+/* BOX */
+.color-yellow .box-heading {
+	border-bottom: 1px solid #FFB400;
+}
+/* TREEMENU */
+.color-yellow .treemenu li a:hover,
+.color-yellow .treemenu li a.active {
+	color: #FFB400;
+}
+/* PAGINATION */
+.color-yellow .pagination .links b {
+	background-color: #FFB400;
+}
+.color-yellow .pagination .links a:hover {
+	background-color: #FFB400;
+}
+/* BOX PRODUCTS */
+.color-yellow .box-product .price {
+	color: #FFB400;
+}
+/* PRODUCTS LIST */
+.color-yellow .product-list > div:hover {
+	border-color: #FFB400;
+}
+.color-yellow .product-list > div:hover .name a {
+	color: #FFB400;
+}
+.color-yellow .product-list .cart a {
+	background-color: #FFB400;
+}
+/* hover */
+.color-yellow .product-list .wishlist a:hover,
+.color-yellow .product-list .compare a:hover {
+	color: #FFB400;
+}
+/* PRODUCTS GRID */
+.color-yellow .product-grid .cart a {
+	color: #FFB400;
+}
+.color-yellow .product-grid .cart a:before {
+	background-color: #FFB400;
+}
+.color-yellow .product-grid .cart a span:before {
+	background-color: #FFB400;
+}
+/* hover */
+.color-yellow .product-grid .price-label div {
+	background-color: #FFB400;
+}
+/* TABS */
+.color-yellow .htabs a:hover {
+	color: #FFB400;
+}
+/* CATEGORY */
+.color-yellow .product-filter .display span {
+	color: #FFB400;
+}
+/* PRODUCT */
+.color-yellow .product-info .price {
+	color: #FFB400;
+}
+/* CHECKOUT */
+.color-yellow .checkout-heading {
+	background-color: #FFB400;
+}
+/* BOTTOM */
+.color-yellow #bottom h3 {
+	border-bottom: 1px solid #FFB400;
+}
+/* =============== PREDEFINED COLORS - BLUE =============== */
+/* DEFAULT HTML - HEADING STYLES */
+.color-blue h1 {
+	color: #45A6CC;
+}
+/* DEFAULT HTML - LINK STYLES */
+.color-blue a {
+	color: #45A6CC;
+}
+/* DEFAULT HTML - BUTTONS */
+.color-blue .button {
+	background-color: #45A6CC;
+}
+/* HEADER */
+.color-blue #topbar #currency a {
+	background-color: #45A6CC;
+}
+.color-blue #topbar #currency a.current {
+	color: #45A6CC;
+}
+.color-blue #topbar #welcome a:hover {
+	color: #45A6CC;
+}
+.color-blue #topbar .links a:hover {
+	color: #45A6CC;
+}
+.color-blue #header #cart .heading {
+	background-color: #45A6CC;
+}
+.color-blue .mini-cart-info .total {
+	color: #45A6CC;
+}
+.color-blue .mini-cart-info .name a:hover {
+	color: #45A6CC;
+}
+.color-blue .mini-cart-total .total {
+	color: #45A6CC;
+}
+/* MENU */
+.color-blue #menu {
+	background-color: #45A6CC;
+}
+.color-blue .mainmenu ul li:hover > a,
+.color-blue .mainmenu ul li.active > a {
+	color: #45A6CC;
+}
+/* BREADCRUMB */
+.color-blue .breadcrumb {
+	border-bottom: 1px solid #45A6CC;
+}
+.color-blue .breadcrumb a:last-child:before {
+	background-color: #45A6CC;
+}
+.color-blue .breadcrumb a:last-child {
+	color: #45A6CC;
+}
+/* BOX */
+.color-blue .box-heading {
+	border-bottom: 1px solid #45A6CC;
+}
+/* TREEMENU */
+.color-blue .treemenu li a:hover,
+.color-blue .treemenu li a.active {
+	color: #45A6CC;
+}
+/* PAGINATION */
+.color-blue .pagination .links b {
+	background-color: #45A6CC;
+}
+.color-blue .pagination .links a:hover {
+	background-color: #45A6CC;
+}
+/* BOX PRODUCTS */
+.color-blue .box-product .price {
+	color: #45A6CC;
+}
+/* PRODUCTS LIST */
+.color-blue .product-list > div:hover {
+	border-color: #45A6CC;
+}
+.color-blue .product-list > div:hover .name a {
+	color: #45A6CC;
+}
+.color-blue .product-list .cart a {
+	background-color: #45A6CC;
+}
+/* hover */
+.color-blue .product-list .wishlist a:hover,
+.color-blue .product-list .compare a:hover {
+	color: #45A6CC;
+}
+/* PRODUCTS GRID */
+.color-blue .product-grid .cart a {
+	color: #45A6CC;
+}
+.color-blue .product-grid .cart a:before {
+	background-color: #45A6CC;
+}
+.color-blue .product-grid .cart a span:before {
+	background-color: #45A6CC;
+}
+/* hover */
+.color-blue .product-grid .price-label div {
+	background-color: #45A6CC;
+}
+/* TABS */
+.color-blue .htabs a:hover {
+	color: #45A6CC;
+}
+/* CATEGORY */
+.color-blue .product-filter .display span {
+	color: #45A6CC;
+}
+/* PRODUCT */
+.color-blue .product-info .price {
+	color: #45A6CC;
+}
+/* CHECKOUT */
+.color-blue .checkout-heading {
+	background-color: #45A6CC;
+}
+/* BOTTOM */
+.color-blue #bottom h3 {
+	border-bottom: 1px solid #45A6CC;
+}
+/* =============== PREDEFINED COLORS - VIOLET =============== */
+/* DEFAULT HTML - HEADING STYLES */
+.color-violet h1 {
+	color: #843A4B;
+}
+/* DEFAULT HTML - LINK STYLES */
+.color-violet a {
+	color: #843A4B;
+}
+/* DEFAULT HTML - BUTTONS */
+.color-violet .button {
+	background-color: #843A4B;
+}
+/* HEADER */
+.color-violet #topbar #currency a {
+	background-color: #843A4B;
+}
+.color-violet #topbar #currency a.current {
+	color: #843A4B;
+}
+.color-violet #topbar #welcome a:hover {
+	color: #843A4B;
+}
+.color-violet #topbar .links a:hover {
+	color: #843A4B;
+}
+.color-violet #header #cart .heading {
+	background-color: #843A4B;
+}
+.color-violet .mini-cart-info .total {
+	color: #843A4B;
+}
+.color-violet .mini-cart-info .name a:hover {
+	color: #843A4B;
+}
+.color-violet .mini-cart-total .total {
+	color: #843A4B;
+}
+/* MENU */
+.color-violet #menu {
+	background-color: #843A4B;
+}
+.color-violet .mainmenu ul li:hover > a,
+.color-violet .mainmenu ul li.active > a {
+	color: #843A4B;
+}
+/* BREADCRUMB */
+.color-violet .breadcrumb {
+	border-bottom: 1px solid #843A4B;
+}
+.color-violet .breadcrumb a:last-child:before {
+	background-color: #843A4B;
+}
+.color-violet .breadcrumb a:last-child {
+	color: #843A4B;
+}
+/* BOX */
+.color-violet .box-heading {
+	border-bottom: 1px solid #843A4B;
+}
+/* TREEMENU */
+.color-violet .treemenu li a:hover,
+.color-violet .treemenu li a.active {
+	color: #843A4B;
+}
+/* PAGINATION */
+.color-violet .pagination .links b {
+	background-color: #843A4B;
+}
+.color-violet .pagination .links a:hover {
+	background-color: #843A4B;
+}
+/* BOX PRODUCTS */
+.color-violet .box-product .price {
+	color: #843A4B;
+}
+/* PRODUCTS LIST */
+.color-violet .product-list > div:hover {
+	border-color: #843A4B;
+}
+.color-violet .product-list > div:hover .name a {
+	color: #843A4B;
+}
+.color-violet .product-list .cart a {
+	background-color: #843A4B;
+}
+/* hover */
+.color-violet .product-list .wishlist a:hover,
+.color-violet .product-list .compare a:hover {
+	color: #843A4B;
+}
+/* PRODUCTS GRID */
+.color-violet .product-grid .cart a {
+	color: #843A4B;
+}
+.color-violet .product-grid .cart a:before {
+	background-color: #843A4B;
+}
+.color-violet .product-grid .cart a span:before {
+	background-color: #843A4B;
+}
+/* hover */
+.color-violet .product-grid .price-label div {
+	background-color: #843A4B;
+}
+/* TABS */
+.color-violet .htabs a:hover {
+	color: #843A4B;
+}
+/* CATEGORY */
+.color-violet .product-filter .display span {
+	color: #843A4B;
+}
+/* PRODUCT */
+.color-violet .product-info .price {
+	color: #843A4B;
+}
+/* CHECKOUT */
+.color-violet .checkout-heading {
+	background-color: #843A4B;
+}
+/* BOTTOM */
+.color-violet #bottom h3 {
+	border-bottom: 1px solid #843A4B;
+}
+/* =============== PREDEFINED COLORS - ORANGE =============== */
+/* DEFAULT HTML - HEADING STYLES */
+.color-orange h1 {
+	color: #E87C46;
+}
+/* DEFAULT HTML - LINK STYLES */
+.color-orange a {
+	color: #E87C46;
+}
+/* DEFAULT HTML - BUTTONS */
+.color-orange .button {
+	background-color: #E87C46;
+}
+/* HEADER */
+.color-orange #topbar #currency a {
+	background-color: #E87C46;
+}
+.color-orange #topbar #currency a.current {
+	color: #E87C46;
+}
+.color-orange #topbar #welcome a:hover {
+	color: #E87C46;
+}
+.color-orange #topbar .links a:hover {
+	color: #E87C46;
+}
+.color-orange #header #cart .heading {
+	background-color: #E87C46;
+}
+.color-orange .mini-cart-info .total {
+	color: #E87C46;
+}
+.color-orange .mini-cart-info .name a:hover {
+	color: #E87C46;
+}
+.color-orange .mini-cart-total .total {
+	color: #E87C46;
+}
+/* MENU */
+.color-orange #menu {
+	background-color: #E87C46;
+}
+.color-orange .mainmenu ul li:hover > a,
+.color-orange .mainmenu ul li.active > a {
+	color: #E87C46;
+}
+/* BREADCRUMB */
+.color-orange .breadcrumb {
+	border-bottom: 1px solid #E87C46;
+}
+.color-orange .breadcrumb a:last-child:before {
+	background-color: #E87C46;
+}
+.color-orange .breadcrumb a:last-child {
+	color: #E87C46;
+}
+/* BOX */
+.color-orange .box-heading {
+	border-bottom: 1px solid #E87C46;
+}
+/* TREEMENU */
+.color-orange .treemenu li a:hover,
+.color-orange .treemenu li a.active {
+	color: #E87C46;
+}
+/* PAGINATION */
+.color-orange .pagination .links b {
+	background-color: #E87C46;
+}
+.color-orange .pagination .links a:hover {
+	background-color: #E87C46;
+}
+/* BOX PRODUCTS */
+.color-orange .box-product .price {
+	color: #E87C46;
+}
+/* PRODUCTS LIST */
+.color-orange .product-list > div:hover {
+	border-color: #E87C46;
+}
+.color-orange .product-list > div:hover .name a {
+	color: #E87C46;
+}
+.color-orange .product-list .cart a {
+	background-color: #E87C46;
+}
+/* hover */
+.color-orange .product-list .wishlist a:hover,
+.color-orange .product-list .compare a:hover {
+	color: #E87C46;
+}
+/* PRODUCTS GRID */
+.color-orange .product-grid .cart a {
+	color: #E87C46;
+}
+.color-orange .product-grid .cart a:before {
+	background-color: #E87C46;
+}
+.color-orange .product-grid .cart a span:before {
+	background-color: #E87C46;
+}
+/* hover */
+.color-orange .product-grid .price-label div {
+	background-color: #E87C46;
+}
+/* TABS */
+.color-orange .htabs a:hover {
+	color: #E87C46;
+}
+/* CATEGORY */
+.color-orange .product-filter .display span {
+	color: #E87C46;
+}
+/* PRODUCT */
+.color-orange .product-info .price {
+	color: #E87C46;
+}
+/* CHECKOUT */
+.color-orange .checkout-heading {
+	background-color: #E87C46;
+}
+/* BOTTOM */
+.color-orange #bottom h3 {
+	border-bottom: 1px solid #E87C46;
+}
+/* =============== PREDEFINED COLORS - GREEN =============== */
+/* DEFAULT HTML - HEADING STYLES */
+.color-green h1 {
+	color: #74B841;
+}
+/* DEFAULT HTML - LINK STYLES */
+.color-green a {
+	color: #74B841;
+}
+/* DEFAULT HTML - BUTTONS */
+.color-green .button {
+	background-color: #74B841;
+}
+/* HEADER */
+.color-green #topbar #currency a {
+	background-color: #74B841;
+}
+.color-green #topbar #currency a.current {
+	color: #74B841;
+}
+.color-green #topbar #welcome a:hover {
+	color: #74B841;
+}
+.color-green #topbar .links a:hover {
+	color: #74B841;
+}
+.color-green #header #cart .heading {
+	background-color: #74B841;
+}
+.color-green .mini-cart-info .total {
+	color: #74B841;
+}
+.color-green .mini-cart-info .name a:hover {
+	color: #74B841;
+}
+.color-green .mini-cart-total .total {
+	color: #74B841;
+}
+/* MENU */
+.color-green #menu {
+	background-color: #74B841;
+}
+.color-green .mainmenu ul li:hover > a,
+.color-green .mainmenu ul li.active > a {
+	color: #74B841;
+}
+/* BREADCRUMB */
+.color-green .breadcrumb {
+	border-bottom: 1px solid #74B841;
+}
+.color-green .breadcrumb a:last-child:before {
+	background-color: #74B841;
+}
+.color-green .breadcrumb a:last-child {
+	color: #74B841;
+}
+/* BOX */
+.color-green .box-heading {
+	border-bottom: 1px solid #74B841;
+}
+/* TREEMENU */
+.color-green .treemenu li a:hover,
+.color-green .treemenu li a.active {
+	color: #74B841;
+}
+/* PAGINATION */
+.color-green .pagination .links b {
+	background-color: #74B841;
+}
+.color-green .pagination .links a:hover {
+	background-color: #74B841;
+}
+/* BOX PRODUCTS */
+.color-green .box-product .price {
+	color: #74B841;
+}
+/* PRODUCTS LIST */
+.color-green .product-list > div:hover {
+	border-color: #74B841;
+}
+.color-green .product-list > div:hover .name a {
+	color: #74B841;
+}
+.color-green .product-list .cart a {
+	background-color: #74B841;
+}
+/* hover */
+.color-green .product-list .wishlist a:hover,
+.color-green .product-list .compare a:hover {
+	color: #74B841;
+}
+/* PRODUCTS GRID */
+.color-green .product-grid .cart a {
+	color: #74B841;
+}
+.color-green .product-grid .cart a:before {
+	background-color: #74B841;
+}
+.color-green .product-grid .cart a span:before {
+	background-color: #74B841;
+}
+/* hover */
+.color-green .product-grid .price-label div {
+	background-color: #74B841;
+}
+/* TABS */
+.color-green .htabs a:hover {
+	color: #74B841;
+}
+/* CATEGORY */
+.color-green .product-filter .display span {
+	color: #74B841;
+}
+/* PRODUCT */
+.color-green .product-info .price {
+	color: #74B841;
+}
+/* CHECKOUT */
+.color-green .checkout-heading {
+	background-color: #74B841;
+}
+/* BOTTOM */
+.color-green #bottom h3 {
+	border-bottom: 1px solid #74B841;
+}

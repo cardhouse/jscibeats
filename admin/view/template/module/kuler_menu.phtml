@@ -1,0 +1,886 @@
+<?php
+function _t($text, array $__) {
+    if (isset($__[$text])) {
+        echo $__[$text];
+    } else {
+        echo $text;
+    }
+}
+?>
+<?php echo $header; ?>
+<div id="content" class="kuler-module">
+    <div class="breadcrumb">
+        <?php foreach ($breadcrumbs as $breadcrumb) { ?>
+        <?php echo $breadcrumb['separator']; ?><a href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a>
+        <?php } ?>
+    </div>
+    <?php if ($error_warning) { ?>
+    <div class="warning"><?php echo $error_warning; ?></div>
+    <?php } ?>
+    <div class="box">
+        <div class="heading clearafter">
+            <h1><img src="./view/kulercore/images/logos/kuler_menu.png" alt="Kuler Menu Module" /></h1>
+            <div class="buttons">
+                <a onclick="$('#form').submit();" class="button save-settings"><?php echo $button_save; ?></a>
+                <a onclick="$('#op').val('close'); $('#form').submit();" class="button cancel-settings"><?php echo $button_close; ?></a>
+                <a href="<?php echo $cancel; ?>" class="button cancel-settings"><?php echo $button_cancel; ?></a>
+            </div>
+        </div>
+        <div class="content">
+            <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
+                <div id="extension-setting" class="clearafter">
+                    <div id="extension-status">
+                        <table class="form">
+                            <tr>
+                                <td><?php echo $entry_status; ?></td>
+                                <td>
+                                    <div class="kuler-switch-btn">
+                                        <input type="hidden" name="menu_status" value="0" />
+                                        <input type="checkbox" name="menu_status" value="1"<?php if ($menu_status) echo ' checked="checked"'; ?>/>
+                                        <span class="kuler-switch-btn-holder"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <ul id="ModuleTabItems" class="vtabs">
+                    <li><span class="module-add"><?php echo $button_add_menu_item; ?>&nbsp;<img id="ModuleAdder" class="add-element" src="view/kulercore/images/icons/icon-add.png" /></span></li>
+                </ul>
+                <div id="ModuleContainer"></div>
+            </form>
+        </div>
+    </div>
+</div>
+<script id="ModuleTabTemplate" type="text/x-handlebars-template">
+<li id="ModuleTabItem_{{tab.row}}" class="ModuleTabItem">
+	<a href="#Module_{{tab.row}}" id="ModuleTab_{{tab.row}}" data-tab="{{tab.row}}" data-row="{{tab.row}}">
+		<b id="ModuleTabTitle_{{tab.row}}">{{languageText tab.title <?php echo $language_id; ?>}}</b>
+		<img class="remove-element ModuleRemover" src="view/kulercore/images/icons/icon-delete.png" data-module="{{tab.row}}" />
+	</a>
+</li>
+</script>
+<script id="ModuleTemplate" type="text/x-handlebars-template">
+<div id="Module_{{menu.row}}" class="vtabs-content">
+    <table class="form">
+        <tr>
+            <td><?php _t('entry_status', $__) ?></td>
+            <td>
+                <div class="kuler-switch-btn">
+                    <input type="hidden" name="menus[{{menu.row}}][status]" value="0" />
+                    <input type="checkbox" name="menus[{{menu.row}}][status]" value="1"{{#compare menu.status 1}} checked="checked"{{/compare}} />
+                    <span class="kuler-switch-btn-holder"></span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><?php _t('entry_title', $__); ?></td>
+            <td>
+                <?php foreach ($languages as $language) { ?>
+                    <p>
+                        <input type="text"<?php if ($language['language_id'] == $language_id) { ?>class="ModuleTitle" data-module-row="{{menu.row}}" <?php } ?>name="menus[{{menu.row}}][title][<?php echo $language['language_id']; ?>]" value="{{languageText menu.title <?php echo $language['language_id']; ?>}}" />
+                        <img src="view/image/flags/<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" />
+                    </p>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><?php _t('entry_sort_order', $__); ?></td>
+            <td>
+                <input type="text" name="menus[{{menu.row}}][sort_order]" value="{{menu.sort_order}}" size="5" />
+            </td>
+        </tr>
+        <tr>
+            <td><?php _t('entry_module_type', $__); ?></td>
+            <td>
+                <select name="menus[{{menu.row}}][type]" class="MenuTypeSelector" data-row="{{menu.row}}" style="width: 150px;">
+                    <option value="category"{{#compare menu.type 'category' operator='=='}} selected="selected"{{/compare}}>Category</option>
+                    <option value="product"{{#compare menu.type 'product' operator='=='}} selected="selected"{{/compare}}>Product</option>
+                    <option value="custom"{{#compare menu.type 'custom' operator='=='}} selected="selected"{{/compare}}>Custom</option>
+                    <option value="html"{{#compare menu.type 'html' operator='=='}} selected="selected"{{/compare}}>HTML</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <div id="OptionTypeContainer_{{menu.row}}">
+        {{menuType menu}}
+    </div>
+</div>
+</script>
+<script id="OptionCategoryTemplate" type="text/x-handlebars-template">
+<h2><?php echo $text_category_display_setting; ?></h2>
+<table class="form">
+	<tr>
+		<td><?php echo $entry_category_image; ?></td>
+		<td>
+			<div class="kuler-switch-btn" style="display: inline-block; top: 5px;">
+			    <input type="hidden" name="menus[{{menu.row}}][image]" value="0" />
+			    <input type="checkbox" name="menus[{{menu.row}}][image]" value="1"{{#compare menu.image 1}} checked="checked"{{/compare}} />
+			    <span class="kuler-switch-btn-holder"></span>
+			</div>
+
+            <select name="menus[{{menu.row}}][image_position]">
+	            <option value="float-left"{{#compare menu.image_position 'float-left'}} selected="selected"{{/compare}}><?php _t('text_float_left', $__); ?></option>
+	            <option value="float-right"{{#compare menu.image_position 'float-right'}} selected="selected"{{/compare}}><?php _t('text_float_right', $__); ?></option>
+	            <option value="no-float"{{#compare menu.image_position 'no-float'}} selected="selected"{{/compare}}><?php _t('text_no_float', $__); ?></option>
+            </select>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_category_description; ?></td>
+		<td>
+			<div class="kuler-switch-btn" style="display: inline-block; top: 5px;">
+			    <input type="hidden" name="menus[{{menu.row}}][description]" value="0" />
+			    <input type="checkbox" name="menus[{{menu.row}}][description]" value="1"{{#compare menu.description 1}} checked="checked"{{/compare}} />
+			    <span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+    <tr>
+        <td><?php _t('entry_show_sub_categories', $__); ?></td>
+        <td>
+            <div class="kuler-switch-btn">
+                <input type="hidden" name="menus[{{menu.row}}][show_sub_categories]" value="0" />
+                <input type="checkbox" name="menus[{{menu.row}}][show_sub_categories]" value="1"{{#compare menu.show_sub_categories 1}} checked="checked"{{/compare}} />
+                <span class="kuler-switch-btn-holder"></span>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td><?php _t('entry_description_text', $__); ?></td>
+        <td>
+            <input type="text" name="menus[{{menu.row}}][description_text]" value="{{menu.description_text}}" size="5" />
+        </td>
+    </tr>
+    <tr>
+        <td><?php _t('entry_category_dimension', $__); ?></td>
+        <td>
+            <input type="text" name="menus[{{menu.row}}][category_image_width]" value="{{menu.category_image_width}}" size="5" /> x
+            <input type="text" name="menus[{{menu.row}}][category_image_height]" value="{{menu.category_image_height}}" size="5" />
+        </td>
+    </tr>
+	<tr>
+		<td><?php echo $entry_max_subcategory_items; ?></td>
+		<td>
+			<input type="text" name="menus[{{menu.row}}][max_subcategory_items]" size="5" value="{{menu.max_subcategory_items}}" />
+		</td>
+	</tr>
+</table>
+<h2><?php echo $text_categories; ?></h2>
+<table class="list">
+    <tbody id="CategoryRows_{{menu.row}}">
+    </tbody>
+	<tfoot>
+		<tr>
+			<td width="500"></td>
+			<td class="left"><a href="#add-category" class="button CategoryAdder" data-module="{{menu.row}}"><?php echo $button_add_category; ?></a></td>
+		</tr>
+	</tfoot>
+</table>
+</script>
+
+<script id="OptionProductTemplate" type="text/x-handlebars-template">
+<h2><?php echo $text_product_display_setting; ?></h2>
+<table class="form">
+	<tr>
+		<td><?php echo $entry_dimension; ?></td>
+		<td>
+			<input type="text" name="menus[{{menu.row}}][image_width]" value="{{menu.image_width}}" size="5" placeholder="<?php echo $text_width; ?>" />
+			<input type="text" name="menus[{{menu.row}}][image_height]" value="{{menu.image_height}}" size="5" placeholder="<?php echo $text_height; ?>" />
+            {{#isTrue 'g_errorProductImages' menu.row}}
+                <p class="error">{{prop 'g_errorProductImages' menu.row}}</p>
+            {{/isTrue}}
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_name; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][name]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][name]" value="1"{{#compare menu.name 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_price; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][price]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][price]" value="1"{{#compare menu.price 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_rating; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][rating]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][rating]" value="1"{{#compare menu.rating 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_description; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][description]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][description]" value="1"{{#compare menu.description 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_add_to_cart; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][add]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][add]" value="1"{{#compare menu.add 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_wish_list; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][wishlist]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][wishlist]" value="1"{{#compare menu.wishlist 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_product_compare; ?></td>
+		<td width="10">
+			<div class="kuler-switch-btn">
+				<input type="hidden" name="menus[{{menu.row}}][compare]" value="0" />
+				<input type="checkbox" name="menus[{{menu.row}}][compare]" value="1"{{#compare menu.compare 1}} checked="checked"{{/compare}} />
+				<span class="kuler-switch-btn-holder"></span>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<h2><?php echo $text_products; ?></h2>
+<table class="list">
+    <tbody id="ProductRows_{{menu.row}}">
+    </tbody>
+	<tfoot>
+		<tr>
+			<td width="500"></td>
+			<td class="left">
+				<a href="#add-product" class="button ProductAdder" data-module="{{menu.row}}"><?php echo $button_add_product; ?></a>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+</script>
+
+<script id="OptionCustomTemplate" type="text/x-handlebars-template">
+<h2><?php _t('text_parent_link_setting', $__); ?></h2>
+<table class="form">
+	<tr>
+		<td><?php echo $entry_link; ?></td>
+		<td>
+			<input type="text" name="menus[{{menu.row}}][link]" value="{{menu.link}}" />
+		</td>
+	</tr>
+	<tr>
+		<td><?php echo $entry_new_tab; ?></td>
+		<td>
+            <div class="kuler-switch-btn">
+                <input type="hidden" name="menus[{{menu.row}}][new_tab]" value="0" />
+                <input type="checkbox" name="menus[{{menu.row}}][new_tab]" value="1"{{#compare menu.new_tab 1}} checked="checked"{{/compare}} />
+                <span class="kuler-switch-btn-holder"></span>
+            </div>
+		</td>
+	</tr>
+</table>
+
+<h2><?php echo $text_links; ?></h2>
+<table class="list">
+	<thead>
+		<tr>
+			<td class="left"><?php echo $entry_sub_menu_item; ?></td>
+			<td class="left"><?php echo $entry_link; ?></td>
+			<td class="left"><?php echo $entry_new_tab; ?></td>
+			<td></td>
+		</tr>
+	</thead>
+	<tbody id="CustomRows_{{menu.row}}">
+
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="3"></td>
+			<td width="150" class="left">
+				<a href="#add-custom" class="button CustomAdder" data-module="{{menu.row}}"><?php echo $button_add_link; ?></a>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+</script>
+
+<script id="OptionHtmlTemplate" type="text/x-handlebars-template">
+    <div class="htabs HtmlLanguageTab">
+        <?php foreach ($languages as $language) { ?>
+            <a id="HtmlTab_{{menu.row}}_<?php echo $language['language_id']; ?>" href="#PanelHtml_{{menu.row}}_<?php echo $language['language_id']; ?>" data-tab="{{menu.row}}_<?php echo $language['language_id']; ?>">
+                <img src="view/image/flags/<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" />
+                <?php echo $language['name']; ?>
+            </a>
+        <?php } ?>
+    </div>
+    <?php foreach ($languages as $language) { ?>
+    <div id="PanelHtml_{{menu.row}}_<?php echo $language['language_id']; ?>">
+        <table class="form">
+            <tr>
+                <td><?php _t('entry_custom_html', $__); ?></td>
+                <td>
+                    <textarea name="menus[{{menu.row}}][htmls][<?php echo $language['language_id']; ?>]" class="Editor">{{languageText menu.htmls <?php echo $language['language_id']; ?>}}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <?php } ?>
+</script>
+
+<script id="ProductRowTemplate" type="text/x-handlebars-template">
+<tr id="ProductRow_{{menu.row}}_{{product.row}}">
+	<td class="left">
+        <input type="hidden" class="ProductId" name="menus[{{menu.row}}][products][{{product.row}}][product_id]" value="{{product.product_id}}" />
+		<input type="text" class="ProductName" name="menus[{{menu.row}}][products][{{product.row}}][name]" value="{{itemName product.name}}" size="40" />
+        <span><?php _t('text_auto_complete', $__); ?></span>
+    </td>
+	<td class="left">
+		<a href="#remove-product" class="button ProductRemover" data-related-row="#ProductRow_{{menu.row}}_{{product.row}}"><?php echo $button_remove_product; ?></a>
+	</td>
+</tr>
+</script>
+
+<script id="CategoryRowTemplate" type="text/x-handlebars-template">
+<tr id="CategoryRow_{{menu.row}}_{{category.row}}">
+    <td class="left">
+        <input type="hidden" class="CategoryId" name="menus[{{menu.row}}][categories][{{category.row}}][category_id]" value="{{category.category_id}}" />
+        <input type="text" class="CategoryName" name="menus[{{menu.row}}][categories][{{category.row}}][name]" value="{{itemName category.name}}" size="40" />
+        <span><?php _t('text_auto_complete', $__); ?></span>
+    </td>
+    <td class="left">
+        <a class="button CategoryRemover" href="#remove-category" data-related-row="#CategoryRow_{{menu.row}}_{{category.row}}"><?php echo $button_remove_category; ?></a>
+    </td>
+</tr>
+</script>
+
+<script id="CustomRowTemplate" type="text/x-handlebars-template">
+<tr id="CustomRow_{{menu.row}}_{{link.row}}">
+    <td class="left">
+        <?php foreach ($languages as $language) { ?>
+            <input type="text" name="menus[{{menu.row}}][links][{{link.row}}][titles][<?php echo $language['language_id']; ?>]" value="{{languageText link.titles <?php echo $language['language_id']; ?>}}" />
+            <img src="view/image/flags/<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" /><br />
+        <?php } ?>
+    </td>
+    <td class="left">
+        <input type="text" name="menus[{{menu.row}}][links][{{link.row}}][link]" value="{{itemName link.link}}" />
+    </td>
+    <td class="left" style="padding-left: 30px;">
+        <div class="kuler-switch-btn">
+            <input type="hidden" name="menus[{{menu.row}}][links][{{link.row}}][new_tab]" value="0"/>
+            <input type="checkbox" name="menus[{{menu.row}}][links][{{link.row}}][new_tab]" value="1"{{#compare link.new_tab 1}} checked="checked"{{/compare}} />
+            <span class="kuler-switch-btn-holder"></span>
+        </div>
+    </td>
+    <td class="left">
+        <a class="button CustomRemover" data-related-row="#CustomRow_{{menu.row}}_{{link.row}}" href="#remove-link"><?php echo $button_remove_link; ?></a>
+    </td>
+</tr>
+</script>
+<script type="text/javascript">
+    var g_token = '<?php echo $token; ?>',
+        g_language_id = <?php echo $language_id; ?>,
+
+        g_defaultMenu = <?php echo json_encode($default_menu); ?>,
+        g_defaultProductRow = <?php echo json_encode($default_product_row); ?>,
+        g_defaultCategoryRow = <?php echo json_encode($default_category_row); ?>,
+        g_defaultCustomRow = <?php echo json_encode($default_custom_row); ?>,
+        g_menus = <?php echo json_encode($menus); ?>,
+
+        g_errorProductImages = <?php echo json_encode($error_product_image); ?>;
+
+    var TemplateEngine = (function (Handlebars, configLanguageId) {
+        return {
+            init: function () {
+                Handlebars.registerHelper('compare', function(lvalue, rvalue, options) {
+
+                    if (arguments.length < 3)
+                        throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+
+                    operator = options.hash.operator || "==";
+
+                    var operators = {
+                        '==':       function(l,r) { return l == r; },
+                        '===':      function(l,r) { return l === r; },
+                        '!=':       function(l,r) { return l != r; },
+                        '<':        function(l,r) { return l < r; },
+                        '>':        function(l,r) { return l > r; },
+                        '<=':       function(l,r) { return l <= r; },
+                        '>=':       function(l,r) { return l >= r; },
+                        'typeof':   function(l,r) { return typeof l == r; }
+                    }
+
+                    if (!operators[operator])
+                        throw new Error("Handlerbars Helper 'compare' doesn't know the operator "+operator);
+
+                    var result = operators[operator](lvalue,rvalue);
+
+                    if( result ) {
+                        return options.fn(this);
+                    } else {
+                        return options.inverse(this);
+                    }
+                });
+
+                Handlebars.registerHelper('languageText', function (texts, index) {
+                    if (typeof texts == 'object') {
+                        return index in texts ? new Handlebars.SafeString(texts[index]) : configLanguageId in texts ? new Handlebars.SafeString(texts[configLanguageId]) : '';
+                    } else {
+                        return '';
+                    }
+                });
+
+                Handlebars.registerHelper('isTrue', function (obj, prop, options) {
+                    if (prop in window[obj] && window[obj][prop]) {
+                        return options.fn(this);
+                    } else {
+                        return '';
+                    }
+                });
+
+                Handlebars.registerHelper('prop', function (obj, prop) {
+                    return window[obj][prop];
+                });
+            }
+        }
+    })(Handlebars, g_language_id);
+
+    var Tab = (function () {
+        $.fn.tabs = function (options) {
+            var defaults = {
+                    prefix: '',
+                    key: ''
+                },
+                selector = this.selector,
+                activeKey;
+
+            options = $.extend(defaults, options);
+
+            activeKey = options.prefix + options.key;
+
+            var matches = document.cookie.match(new RegExp(activeKey + '=([^;]+);')), activeValue = 0;
+
+            if (matches) {
+                activeValue = matches[1];
+            }
+
+            $('body').on('click', selector, function (evt) {
+                evt.preventDefault();
+
+                $(selector)
+                    .removeClass('selected')
+                    .each(function () {
+                        $($(this).attr('href')).hide();
+                    });
+
+                var $this = $(this);
+                $this.addClass('selected');
+                $($this.attr('href')).show();
+
+                document.cookie = activeKey + '=' + $this.data('tab');
+            });
+
+            this.show();
+
+            if (!$('#' + options.key + '_' + activeValue).trigger('click').length) {
+                $(selector).eq(0).trigger('click');
+            }
+        };
+
+        return {
+            init: function (selector, tabPrefix, tabKey) {
+                var context = $.isPlainObject(selector) ? selector.context : document,
+                    selector = $.isPlainObject(selector) ? selector.selector : selector;
+
+                $(selector, context).tabs({
+                    prefix: tabPrefix,
+                    key: tabKey
+                });
+            }
+        };
+    })();
+
+    var Editor = (function (token) {
+        CKEDITOR.config.autoParagraph = false;
+
+        return {
+            init: function (selector, context) {
+                $(selector, context || document).each(function () {
+                    CKEDITOR.replace(this, {
+                        filebrowserBrowseUrl: 'index.php?route=common/filemanager&token=' + token,
+                        filebrowserImageBrowseUrl: 'index.php?route=common/filemanager&token=' + token,
+                        filebrowserFlashBrowseUrl: 'index.php?route=common/filemanager&token=' + token,
+                        filebrowserUploadUrl: 'index.php?route=common/filemanager&token=' + token,
+                        filebrowserImageUploadUrl: 'index.php?route=common/filemanager&token=' + token,
+                        filebrowserFlashUploadUrl: 'index.php?route=common/filemanager&token=' + token
+                    });
+                });
+            }
+        };
+    })(g_token);
+
+    var ModuleTab = (function (Tab) {
+        var that;
+        return {
+            row: -1,
+            init: function () {
+                that = this;
+
+                that.$tabList = $('#ModuleTabItems');
+
+                that.initTemplate();
+
+                for (var i in g_menus) {
+                    that.addTab(g_menus[i]);
+
+                    g_menus[i].row = that.row;
+                    Module.addModule(g_menus[i]);
+                }
+
+                that.initTab();
+
+                $('#ModuleAdder').on('click', function (evt) {
+                    evt.preventDefault();
+
+                    var title = {};
+                    title[g_language_id] = 'Item ' + (that.row + 2);
+
+                    that.addTab({
+                        title: title
+                    });
+
+                    var menu = g_defaultMenu;
+                    menu.row = that.row;
+                    menu.title = title;
+
+                    Module.addModule(menu);
+
+                    that.$tabList.find('.ModuleTabItem a').trigger('click');
+                });
+            },
+            initTab: function () {
+                Tab.init('#ModuleTabItems a', 'km_', 'ModuleTab');
+            },
+            initRemoverButton: function (context) {
+                $('.ModuleRemover', context || document).on('click', function (evt) {
+                    evt.preventDefault();
+                    var moduleRow = $(this).data('module');
+
+                    $('#ModuleTabItem_' + moduleRow + ', #Module_' + moduleRow).remove();
+                    that.$tabList.find('a:first').trigger('click');
+                });
+            },
+            addTab: function (tab) {
+                that.row++;
+                tab.row = that.row;
+
+                var tabHtml = that.tabTemplate({
+                    tab: tab
+                });
+
+                tabHtml = $(tabHtml);
+                that.$tabList.children('li:last').before(tabHtml);
+
+                that.initRemoverButton(tabHtml[0]);
+            },
+            initTemplate: function () {
+                that.tabTemplate = Handlebars.compile($('#ModuleTabTemplate').html())
+            }
+        };
+    })(Tab);
+
+    var Module = (function (Tab, Editor) {
+        var that;
+
+        return {
+            productRows: {},
+            categoryRows: {},
+            customRows: {},
+            init: function () {
+                that = this;
+
+                that.initTemplate();
+
+                $('#ModuleContainer').on('change', '.MenuTypeSelector', function () {
+                    var $selector = $(this),
+                        type = $selector.val(),
+                        row = $selector.data('row'),
+                        menu = g_defaultMenu;
+
+                    menu.row = row;
+                    menu.type = type;
+
+                    $('#OptionTypeContainer_' + row)
+                        .html(that.getTypeOptionTemplate(menu));
+
+                    // Reset index row
+                    that.productRows[row] = 0;
+                    that.categoryRows[row] = 0;
+                    that.customRows[row] = 0;
+
+                    that.postAddModule(menu);
+                });
+
+                $('#ModuleContainer').on('keyup', '.ModuleTitle', function () {
+                    $('#ModuleTabTitle_' + $(this).data('moduleRow')).html($(this).val());
+                });
+
+                // Product init
+                $('#ModuleContainer').on('click', '.ProductAdder', function (evt) {
+                    evt.preventDefault();
+
+                    that.addProduct($(this).data('module'), g_defaultProductRow);
+                });
+
+                $('#ModuleContainer').on('click', '.ProductRemover', function (evt) {
+                    evt.preventDefault();
+
+                    $($(this).data('relatedRow')).remove();
+                });
+
+                // Category init
+                $('#ModuleContainer').on('click', '.CategoryAdder', function (evt) {
+                    evt.preventDefault();
+
+                    var moduleRow = $(this).data('module');
+
+                    that.addCategory($(this).data('module'), g_defaultCategoryRow);
+                });
+
+                $('#ModuleContainer').on('click', '.CategoryRemover', function (evt) {
+                    evt.preventDefault();
+
+                    $($(this).data('relatedRow')).remove();
+                });
+                
+                // Custom init
+                $('#ModuleContainer').on('click', '.CustomAdder', function (evt) {
+                    evt.preventDefault();
+
+                    that.addCustom($(this).data('module'), g_defaultCustomRow);
+                });
+
+                $('#ModuleContainer').on('click', '.CustomRemover', function (evt) {
+                    evt.preventDefault();
+
+                    $($(this).data('relatedRow')).remove();
+                });
+            },
+            initTemplate: function () {
+                that.template = Handlebars.compile($('#ModuleTemplate').html());
+
+                that.categoryTemplate = Handlebars.compile($('#OptionCategoryTemplate').html());
+                that.productTemplate = Handlebars.compile($('#OptionProductTemplate').html());
+                that.customTemplate = Handlebars.compile($('#OptionCustomTemplate').html());
+                that.htmlTemplate = Handlebars.compile($('#OptionHtmlTemplate').html());
+
+                that.productRowTemplate = Handlebars.compile($('#ProductRowTemplate').html());
+                that.categoryRowTemplate = Handlebars.compile($('#CategoryRowTemplate').html());
+                that.customRowTemplate = Handlebars.compile($('#CustomRowTemplate').html());
+
+                Handlebars.registerHelper('menuType', function (menu) {
+                    return new Handlebars.SafeString(that.getTypeOptionTemplate(menu));
+                });
+
+                Handlebars.registerHelper('itemName', function (name) {
+                    return new Handlebars.SafeString(name);
+                });
+            },
+            getTypeOptionTemplate: function (menu) {
+                var html = '',
+                    params = {
+                        menu: menu
+                    };
+
+                switch (menu.type) {
+                    case 'category':
+                        html = that.categoryTemplate(params);
+                        break;
+                    case 'product':
+                        html = that.productTemplate(params);
+                        break;
+                    case 'custom':
+                        html = that.customTemplate(params);
+                        break;
+                    case 'html':
+                        html = that.htmlTemplate(params);
+                        break;
+                }
+
+                return html;
+            },
+            addModule: function (module) {
+                var menu = module,
+                    html = that.template({menu: module});
+
+                $('#ModuleContainer').append(html);
+
+                // Render items
+                var items, fn;
+
+                switch (menu.type) {
+                    case 'category':
+                        items = menu.categories;
+                        fn = that.addCategory;
+                        break;
+                    case 'product':
+                        items = menu.products;
+                        fn = that.addProduct;
+                        break;
+                    case 'custom':
+                        items = menu.links;
+                        fn = that.addCustom;
+                        break;
+                }
+
+                for (var i in items) {
+                    fn(menu.row, items[i]);
+                }
+
+                that.postAddModule(menu);
+            },
+            addProduct: function (moduleRow, product) {
+                // Prepare data
+                that.productRows[moduleRow] = that.productRows[moduleRow] || 0;
+                product.row = that.productRows[moduleRow];
+
+                // Render template
+                var  html = that.productRowTemplate({
+                    menu: {row: moduleRow},
+                    product: product
+                });
+
+                $('#ProductRows_' + moduleRow).append(html);
+
+                // Init auto complete for product
+                var $productRow = $('#ProductRow_' + moduleRow + '_' + product.row),
+                    $productNameInput = $productRow.find('.ProductName'),
+                    $productId = $productRow.find('.ProductId');
+
+                $productNameInput.autocomplete({
+                    delay: 500,
+                    source: function(request, response) {
+                        $.ajax({
+                            url: 'index.php?route=catalog/product/autocomplete&token='+ g_token +'&filter_name=' +  encodeURIComponent(request.term),
+                            dataType: 'json',
+                            success: function(json) {
+                                response($.map(json, function(item) {
+                                    return {
+                                        label: item.name,
+                                        value: item.product_id
+                                    }
+                                }));
+                            }
+                        });
+                    },
+                    select: function(event, ui) {
+                        $productNameInput.val(ui.item.label);
+                        $productId.val(ui.item.value);
+
+                        return false;
+                    },
+                    focus: function(event, ui) {
+                        return false;
+                    }
+                });
+
+                that.productRows[moduleRow]++;
+            },
+            addCategory: function (moduleRow, category) {
+                // Prepare data
+                that.categoryRows[moduleRow] = that.categoryRows[moduleRow] || 0;
+                category.row = that.categoryRows[moduleRow];
+
+                // Render template
+                var html = that.categoryRowTemplate({
+                    menu: {row: moduleRow},
+                    category: category
+                });
+
+                $('#CategoryRows_' + moduleRow).append(html);
+
+                // Init category autocomplete
+                var $categoryRow = $('#CategoryRow_' + moduleRow + '_' + category.row),
+                    $categoryId = $categoryRow.find('.CategoryId'),
+                    $categoryName = $categoryRow.find('.CategoryName');
+
+                $categoryName.autocomplete({
+                    delay: 500,
+                    source: function(request, response) {
+                        $.ajax({
+                            url: 'index.php?route=catalog/category/autocomplete&token='+ g_token +'&filter_name=' +  encodeURIComponent(request.term),
+                            dataType: 'json',
+                            success: function(json) {
+                                response($.map(json, function(item) {
+                                    return {
+                                        label: item.name,
+                                        value: item.category_id
+                                    }
+                                }));
+                            }
+                        });
+                    },
+                    select: function(event, ui) {
+                        $categoryId.val(ui.item.value);
+                        $categoryName.val(ui.item.label);
+
+                        return false;
+                    },
+                    focus: function(event, ui) {
+                        return false;
+                    }
+                });
+
+                //
+                that.categoryRows[moduleRow]++;
+            },
+            addCustom: function (moduleRow, custom) {
+                // Prepare data
+                that.customRows[moduleRow] = that.customRows[moduleRow] || 0;
+                custom.row = that.customRows[moduleRow];
+
+                // Render template
+                var html = that.customRowTemplate({
+                    menu: {row: moduleRow},
+                    link: custom
+                });
+
+                $('#CustomRows_' + moduleRow).append(html);
+
+                that.customRows[moduleRow]++;
+            },
+            postAddModule: function (module) {
+                var $module = $('#Module_' + module.row);
+
+                if (module.type == 'html') {
+                    Tab.init($module.find('.HtmlLanguageTab a'), 'km_', 'HtmlTab');
+                    Editor.init('.Editor', $module);
+                }
+            }
+        };
+    })(Tab, Editor);
+
+    TemplateEngine.init();
+    Module.init();
+    ModuleTab.init();
+</script>
+<?php echo $footer; ?>

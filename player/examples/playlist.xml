@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlists>
+
+  <!-- href: Path of your MP3 file, title: Title of your Track, target: Optional URL(need to be a HTTP request), e.g. downloading/buying it-->
+  <playlist id="pl1">
+	<track href="music/adg3com_bustedchump.mp3" title="Artist 1 - Track 1" target="http://google.de" rel="covers/cover1.jpg">
+	  <meta>
+	    <![CDATA[ <a href="http://google.de" target="_blank">This is an optional text with a link</a> ]]>
+	  </meta>
+	</track>
+	<track href="music/adg3com_chuckedknuckles.mp3" title="Artist 2 - Track 2" target="" rel="">
+	  <meta>
+		<![CDATA[This is an optional text]]>
+	  </meta>
+	</track>
+  </playlist>
+  
+  <playlist id="pl2">
+    <track href="http://soundcloud.com/djlewisvi/afrojack-lionheart" title="Afrojack - Lionheart" />
+	<track href="music/adg3com_chuckedknuckles.mp3" title="Artist 3 - Track 3" target="" rel="covers/cover1.jpg">
+	  <meta>
+		<![CDATA[This is an optional text]]>
+	  </meta>
+	</track>
+	<track href="http://soundcloud.com/radykal/favorites" title="Soundcloud Favorites" />
+  </playlist>
+  
+  
+</playlists>
+
+

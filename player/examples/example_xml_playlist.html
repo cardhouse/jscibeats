@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+    <html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Fullwidth Audio Player</title>
+
+    <!-- Style sheets -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery.fullwidthAudioPlayer.css">
+
+    <!-- Include js files -->
+	<script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="js/jquery-ui.js" type="text/javascript"></script>
+    <script src="https://connect.soundcloud.com/sdk.js"></script>
+    <script src="js/soundmanager2-nodebug-jsmin.js" type="text/javascript"></script>
+    <script src="js/jquery.fullwidthAudioPlayer.min.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+
+	soundManager.url = 'swf/';
+	soundManager.flashVersion = 9;
+	soundManager.useHTML5Audio = true;
+	soundManager.debugMode = false;
+
+    $(document).ready(function(){
+
+		//put your soundcloud key here
+    	$('#fap').fullwidthAudioPlayer({xmlPath: 'playlist.xml', xmlPlaylist: 'pl1', sortable: true});
+
+    });
+
+    </script>
+
+    </head>
+
+    <body>
+
+      <div id="content">
+
+          <div id="inner-content">
+
+              <div id="fap"></div>
+
+              <p>
+              <h5>XML External Playlist</h5>
+              <div class="fap-xml-playlist" id="pl2" title="My Playlist from Soundcloud"></div>
+              </p>
+
+           </div>
+      </div>
+
+    </body>
+</html>

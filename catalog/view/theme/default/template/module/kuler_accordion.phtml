@@ -1,0 +1,28 @@
+<div class="kuler-accordion">
+	<div class="box kuler-module">
+	  <?php if ($show_title) { ?>
+		<div class="box-heading"><span><?php echo $module_title ?></span></div>
+	  <?php } ?>
+	  <div class="box-content horizontal">
+		<?php foreach ($products as $product) { ?>
+		<div class="slide">
+		  <div class="item-title"><span><?php echo $product['short_name']; ?></span></div>
+		  <div class="item-content">
+			<?php if($template) { ?>
+			  <div class="box-product product-list">
+			  <?php include($template); ?>
+			  </div>
+			<?php } ?>
+		  </div>
+		</div>
+		<?php } ?>
+	  </div>
+	</div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('.kuler-accordion .box-content').kulerAccordion({
+            duration: 600
+        });
+    });
+</script>

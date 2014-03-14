@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+    <html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Fullwidth Audio Player</title>
+
+    <!-- Style sheets -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery.fullwidthAudioPlayer.css">
+
+    <!-- Include js files -->
+	<script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="js/jquery-ui.js" type="text/javascript"></script>
+    <script src="https://connect.soundcloud.com/sdk.js"></script>
+    <script src="js/soundmanager2-nodebug-jsmin.js" type="text/javascript"></script>
+    <script src="js/jquery.fullwidthAudioPlayer.min.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+
+	soundManager.url = 'swf/';
+	soundManager.flashVersion = 9;
+	soundManager.useHTML5Audio = true;
+	soundManager.debugMode = false;
+
+    $(document).ready(function(){
+
+		//put your own soundcloud key here
+    	$('#fap').fullwidthAudioPlayer({autoPlay: true});
+
+    });
+
+    </script>
+
+    </head>
+
+    <body>
+
+      <div id="content">
+
+          <div id="inner-content">
+
+              <div id="fap">
+              </div>
+
+              <p>
+              <h5>Add a whole external playlist to the player from a button.</h5>
+
+              <input type="submit" class="fap-add-playlist" data-playlist="any-playlist" value="Add playlist to player" />
+              <ul data-playlist="any-playlist">
+                <li><a class="fap-single-track" href="music/adg3com_cloudlessdays.mp3" title="Artist 3 - Track 3" target="http://google.de" rel="covers/cover2.jpg" data-meta="">Artist 3 - Track 3</a></li>
+                <li><a class="fap-single-track" href="http://soundcloud.com/brandon_selective/coldplay-paradise-fedde-le">Coldplay - Paradise (Fedde Le Grande Remix)</a></li>
+                <li><a class="fap-single-track" href="http://soundcloud.com/radykal/favorites">Soundcloud favorites</a></li>
+              </ul>
+              </p>
+
+           </div>
+      </div>
+
+    </body>
+</html>

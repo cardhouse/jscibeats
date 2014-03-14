@@ -1,0 +1,63 @@
+<ul class="mainmenu megamenu clearafter">
+    <li class="item<?php if (!$route || $route == 'common/home') echo ' active'; ?>"><a href="index.php" title="Home"><?php echo $__['text_home']; ?></a></li>
+
+    <?php foreach ($items as $item_index => $item) { ?>
+        <li class="item<?php if (count($item['children'])) echo ' parent' ?> <?php echo $item['type'] ?>">
+            <a href="<?php if (isset($item['href'])) echo $item['href']; ?>"<?php if (isset($item['new_tab']) && $item['new_tab']) echo ' target="_blank"'; ?>><?php echo $item['title']; ?></a>
+            <?php if (!empty($item['children'])) { ?>
+                <div class="dropdown-container">
+                    <?php if ($item['type'] == 'custom') { ?>
+                        <div class="dropdown clearafter">
+                            <ul class="sublevel">
+                                <?php foreach ($item['children'] as $item2) { ?>
+                                    <li class="item"><a href="<?php echo $item2['href']; ?>"<?php if ($item2['new_tab']) echo ' target="_blank"'; ?>><?php echo $item2['title']; ?></a></li>
+                                <?php } ?>
+                            </ul>
+                        </div>
+                    <?php } else if ($item['type'] == 'product') { ?>
+                        <div class="dropdown clearafter">
+                            <div class="box-product product-grid">
+                            <?php foreach ($item['children'] as $item2) { ?>
+                                <?php echo $this->loadChromeTemplate($item, $item2); ?>
+                            <?php } ?>
+                            </div>
+                        </div>
+                    <?php } else if ($item['type'] == 'category') { ?>
+                        <div class="dropdown clearafter">
+                            <ul class="sublevel">
+                                <?php foreach ($item['children'] as $item2) { ?>
+                                    <li class="item<?php if (in_array($item2['category_id'], $paths)) echo ' active'; ?>">
+
+                                        <a href="<?php echo $item2['href']; ?>" class="menu-category-title<?php if (in_array($item2['category_id'], $paths)) echo ' current'; ?>"><?php echo $item2['title']; ?></a>
+
+                                        <?php if ($item['description'] && $item2['description'] != '..') { ?>
+                                            <p class="menu-category-description"><?php echo $item2['description']; ?></p>
+                                        <?php } ?>
+
+                                        <?php if ($item['image']) { ?>
+                                            <img class="menu-category-image <?php echo $item['image_position']; ?>" src="<?php echo $item2['thumb']; ?>" alt="<?php echo $item2['title']; ?>" />
+                                        <?php } ?>
+
+                                        <?php if (!empty($item2['children'])) { ?>
+	                                    <?php $subcat_offset = $item['category_image_width'] + 30; ?>
+                                        <ul class="subcat"<?php if ($item['image_position'] == 'float-left') echo " style=\"margin-left: {$subcat_offset}px\""; ?><?php if ($item['image_position'] == 'float-right') echo " style=\"margin-right: {$subcat_offset}px\""; ?>>
+                                            <?php foreach ($item2['children'] as $item3) { ?>
+                                            <li><a href="<?php echo $item3['href']; ?>"><?php echo $item3['title']; ?></a></li>
+                                            <?php } ?>
+                                        </ul>
+                                        <?php } ?>
+                                    </li>
+                                <?php } ?>
+                            </ul>
+                        </div>
+                    <?php } else if ($item['type'] == 'html') { ?>
+                        <div class="dropdown clearafter">
+                            <?php echo $item['html']; ?>
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+        </li>
+    <?php } ?>
+    <li id="btn-mobile-toggle"></li>
+</ul>

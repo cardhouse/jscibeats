@@ -1,0 +1,66 @@
+/*--------------------------------------------------------------------------/
+* @Author		KulerThemes.com http://www.kulerthemes.com
+* @Copyright	Copyright (C) 2012 - 2013 KulerThemes.com. All rights reserved.
+* @License		KulerThemes.com Proprietary License
+/---------------------------------------------------------------------------*/
+
+.is-ie {
+	overflow-x: hidden;
+}
+.is-ie input,
+.is-ie select,
+.is-ie textarea {
+	line-height: 120%;
+}
+/* input */
+.is-ie input {
+	position: static;
+	overflow: visible;
+}
+.is-ie input[type*="radio"],
+.is-ie input[type*="checkbox"] {
+	border: none;
+	outline: none;
+	background: none;
+	vertical-align: bottom;
+}
+.is-ie .tab-content {
+	width: 100%;
+}
+.is-ie .mainmenu li .dropdown {
+	margin: 0;
+	display: none;
+}
+.is-ie #header #cart .inner {
+	margin: 0;
+	display: none;
+}
+.is-ie table.list tbody td.quantity input {
+	vertical-align: top;
+}
+/*fix minor error for display rounded price tag*/
+.is-ie .product-grid .details{
+    display:none;
+}
+.is-ie .product-grid > div:hover .details,
+.is-ie .product-grid > div:hover .price-label{
+    display:block
+}
+.is-ie .product-grid > div:hover .price {
+    display: none;
+}
+.is-ie .product-grid .price-label{
+    display:none
+}
+.is-ie .box-product > div{
+    height:350px
+}
+.is-ie ul.module-nav-list{
+    height: 76px
+}
+.is-ie .ui-state-active{
+    height: 33px;
+}
+.primary-define .product-grid .price-label div {
+    behavior: url(catalog/view/theme/acceptus-pro/includes/PIE.htc);
+}

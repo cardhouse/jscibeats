@@ -1,0 +1,144 @@
+/*--------------------------------------------------------------------------/
+* @Author		KulerThemes.com http://www.kulerthemes.com
+* @Copyright	Copyright (C) 2012 - 2013 KulerThemes.com. All rights reserved.
+* @License		KulerThemes.com Proprietary License
+/---------------------------------------------------------------------------*/
+
+/* SELECTORS */
+.primary-define #sitetools {
+	text-align: center;
+	background-color: #333;
+	transition: 0.3s ease;
+	-moz-transition: 0.3s ease;
+	-webkit-transition: 0.3s ease;
+}
+.primary-define #close-sitetools {
+	opacity: 0.6;
+	float: right;
+	cursor: pointer;
+	margin: 17px 20px 0 20px;
+}
+.primary-define #sitetools-logo {
+	float: left;
+	text-align: center;
+	margin: 12px 0 0 30px;
+}
+.primary-define #close-sitetools:hover {
+	opacity: 1;
+	transition: 0.3s ease;
+	-moz-transition: 0.3s ease;
+	-webkit-transition: 0.3s ease;
+}
+.primary-define #buy-now {
+	float: right;
+	margin-top: 12px;
+	text-align: center;
+}
+.primary-define #color-selector {
+	margin: 0;
+	color: #666;
+	display: inline-block;
+	list-style-type: none;
+	vertical-align: middle;
+}
+.primary-define #color-selector li {
+	float: left;
+	margin: 0 2px;
+}
+.primary-define #color-selector li > span {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 62px;
+	margin-right: 15px;
+}
+.primary-define #color-selector li a {
+	width: 30px;
+	height: 30px;
+	padding: 5px;
+	opacity: 0.6;
+	margin: 11px 0;
+	display: block;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+.primary-define #color-selector li a span {
+	opacity: 0;
+	width: 20px;
+	height: 20px;
+	display: block;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 5px solid rgba(255, 255, 255, 0.8);
+	transition: 0.3s ease;
+	-moz-transition: 0.3s ease;
+	-webkit-transition: 0.3s ease;
+}
+.primary-define #color-selector li a:hover,
+.primary-define #color-selector li a.active,
+.primary-define #color-selector li a:hover span,
+.primary-define #color-selector li a.active span {
+	opacity: 1;
+}
+.primary-define #viewport-selector {
+	color: #666;
+	margin: 0 0 0 20px;
+	display: inline-block;
+	list-style-type: none;
+	vertical-align: middle;
+}
+.primary-define #viewport-selector li {
+	float: left;
+	margin: 0 1px 0 0;
+}
+.primary-define #viewport-selector li > span {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 62px;
+	margin-right: 15px;
+}
+.primary-define #viewport-selector li a {
+	width: 70px;
+	height: 62px;
+	display: block;
+	background-color: #444;
+	background-repeat: no-repeat;
+	background-position: center center
+}
+.primary-define #viewport-selector li .desktop-landscape {
+	background-image: url(../image/icons/icon-desktop.png);
+}
+.primary-define #viewport-selector li .tablet-landscape {
+	background-image: url(../image/icons/icon-htablet.png);
+}
+.primary-define #viewport-selector li .tablet-portrait {
+	background-image: url(../image/icons/icon-vtablet.png);
+}
+.primary-define #viewport-selector li .mobile-landscape {
+	background-image: url(../image/icons/icon-hmobile.png);
+}
+.primary-define #viewport-selector li .mobile-portrait {
+	background-image: url(../image/icons/icon-vmobile.png);
+}
+.primary-define #viewport-selector li a:hover,
+.primary-define #viewport-selector li a.active {
+	background-color: #555;
+}
+/* DIALOG */
+.primary-define .ui-dialog .ui-dialog-titlebar {
+	border: none;
+	background: #333;
+	text-align: center;
+	text-transform: uppercase;
+	font: bold 13px/32px Arial, Helvetica, sans-serif;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.primary-define .ui-dialog .ui-dialog-title {
+	margin: 0;
+	float: none;
+}
+.primary-define .ui-dialog .ui-dialog-titlebar-close span {
+	padding: 0;
+}

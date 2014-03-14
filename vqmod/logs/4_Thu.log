@@ -1,0 +1,650 @@
+---------- Date: 2014-02-06 21:24:07 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/admin/index.php?route=common/home&amp;token=65adecb7cbc39dbfaf0e58070abff565
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : admin/model/sale/affiliate.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): UPDATE " . DB_PREFIX . "affiliate SET password =
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 21:24:19 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/admin/index.php?route=catalog/product/update&amp;token=65adecb7cbc39dbfaf0e58070abff565&amp;product_id=50
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : admin/model/sale/coupon.php(0)
+VQModObject::applyMod - SEARCH NOT FOUND (SKIPPED): 				
+			function deleteCoupon
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 21:29:45 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/admin/index.php?route=catalog/product/update&amp;token=65adecb7cbc39dbfaf0e58070abff565&amp;product_id=50
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : admin/model/sale/coupon.php(0)
+VQModObject::applyMod - SEARCH NOT FOUND (SKIPPED): 				
+			function deleteCoupon
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 21:52:01 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/admin/index.php?route=catalog/product/update&amp;token=65adecb7cbc39dbfaf0e58070abff565&amp;product_id=51
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : admin/model/sale/coupon.php(0)
+VQModObject::applyMod - SEARCH NOT FOUND (SKIPPED): 				
+			function deleteCoupon
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 21:52:18 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/admin/index.php?route=catalog/product/update&amp;token=65adecb7cbc39dbfaf0e58070abff565&amp;product_id=53
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : admin/model/sale/coupon.php(0)
+VQModObject::applyMod - SEARCH NOT FOUND (SKIPPED): 				
+			function deleteCoupon
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 21:52:43 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/admin/index.php?route=catalog/product/update&amp;token=65adecb7cbc39dbfaf0e58070abff565&amp;product_id=50
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : admin/model/sale/coupon.php(0)
+VQModObject::applyMod - SEARCH NOT FOUND (SKIPPED): 				
+			function deleteCoupon
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:13:22 ~ IP : 178.202.74.145 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:13:26 ~ IP : 178.202.74.145 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:13:43 ~ IP : 178.202.74.145 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:13:48 ~ IP : 178.202.74.145 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:17:27 ~ IP : 69.171.187.20 ----------
+REQUEST URI : /upload/index.php?route=affiliate/login
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:32:00 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:53:41 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:56:42 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:57:13 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:57:56 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:58:22 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 22:59:18 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:00:05 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:00:45 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:01:58 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:03:09 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:29:32 ~ IP : 69.204.20.58 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:30:08 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:30:46 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:34:15 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:34:22 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:34:33 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:37:26 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:42:19 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:42:48 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:43:02 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:43:56 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:45:21 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:46:22 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:49:09 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:49:29 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:49:43 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:49:52 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:50:25 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:50:49 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:56:15 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+
+---------- Date: 2014-02-06 23:58:49 ~ IP : 69.254.148.219 ----------
+REQUEST URI : /upload/
+MOD DETAILS:
+   modFile   : /home2/jgalenti/public_html/jscibeats.com/upload/vqmod/xml/multi_tier_affiliate_system.xml
+   id        : Multi tier affiliate system
+   version   : 1.4.0130
+   vqmver    : 2.1.5
+   author    : YP
+
+File Name    : system/library/cart.php(2)
+VQModObject::applyMod - SEARCH NOT FOUND (ABORTING MOD): if (isset($product[1])) {
+
+----------------------------------------------------------------------
+
+

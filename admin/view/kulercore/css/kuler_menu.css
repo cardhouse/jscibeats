@@ -1,0 +1,11 @@
+#extension-setting {
+    background-color: #dedede;
+}
+
+#extension-status {
+    float: right;
+}
+
+#extension-status .form {
+    margin-bottom: 0;
+}

@@ -1,0 +1,210 @@
+<modification>
+       <id>Option Download vQmod</id>
+       <version>1.0.0</version>
+       <vqmver>2.3.2</vqmver>
+       <author>http://quartzstore.com  an911@ukr.net</author>
+       
+       
+       
+        <file name="system/library/cart.php">
+            <operation error="skip">
+                <search position="after"><![CDATA[$option_weight = 0;]]></search>
+                <add><![CDATA[$option_download = 0;]]></add>
+            </operation>
+            <operation error="skip">
+                <search position="replace"><![CDATA[$option_value_query = $this->db->query("SELECT pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id = '" . (int)$option_value . "' AND pov.product_option_id = '" . (int)$product_option_id . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");]]></search>
+                <add><![CDATA[$option_value_query = $this->db->query("SELECT  pov.download_id, pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id = '" . (int)$option_value . "' AND pov.product_option_id = '" . (int)$product_option_id . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");]]></add>
+            </operation>
+            <operation error="skip">
+                <search position="before"  offset="3"><![CDATA[if ($option_value_query->row['weight_prefix'] == '+') {]]></search>
+                <add>
+                   <![CDATA[if ($option_value_query->row['download_id'] > 0) {]]>
+                   <![CDATA[$option_download = $option_value_query->row['download_id'];]]>
+                   <![CDATA[}]]>
+                </add>
+            </operation>
+            <operation error="skip">
+                <search position="replace"><![CDATA['weight_prefix'           => $option_value_query->row['weight_prefix']]]></search>
+                <add>
+                   <![CDATA['weight_prefix'           => $option_value_query->row['weight_prefix'],]]>
+                   <![CDATA['download_id'           => $option_value_query->row['download_id']]]>
+                </add>
+            </operation>
+            <operation error="skip">
+                <search position="replace"><![CDATA[$option_value_query = $this->db->query("SELECT pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id = '" . (int)$product_option_value_id . "' AND pov.product_option_id = '" . (int)$product_option_id . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");]]></search>
+                <add>
+                   <![CDATA[$option_value_query = $this->db->query("SELECT  pov.download_id, pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id = '" . (int)$product_option_value_id . "' AND pov.product_option_id = '" . (int)$product_option_id . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");]]>
+                </add>
+            </operation>
+            <operation error="skip">
+                <search position="before"><![CDATA[// Stock]]></search>
+                <add>
+                   <![CDATA[$option_download = array();]]>
+                   <![CDATA[foreach ($option_data as $value) {]]>
+                   <![CDATA[$option_download[]=$value["download_id"];]]>
+                   <![CDATA[}]]>
+                   <![CDATA[if($option_download){ ]]>
+                   <![CDATA[$download_option = array();]]>
+                   <![CDATA[$download_option = $this->db->query("SELECT * FROM " . DB_PREFIX . "download d LEFT JOIN " . DB_PREFIX . "download_description dd ON (d.download_id = dd.download_id) WHERE d.download_id IN(" . implode(",", $option_download) . ") AND dd.language_id = '" . (int)$this->config->get('config_language_id') . "'");]]>
+                   <![CDATA[$download_option_data = array();]]>
+                   <![CDATA[foreach ($download_option->rows as $download) {]]>
+                   <![CDATA[$download_option_data[] = array(]]>
+                   <![CDATA['download_id' => $download['download_id'],]]>
+                   <![CDATA['name'        => $download['name'],]]>
+                   <![CDATA['filename'    => $download['filename'],]]>
+                   <![CDATA['mask'        => $download['mask'],]]>
+                   <![CDATA['remaining'   => $download['remaining']]]>
+                   <![CDATA[);]]>
+                   <![CDATA[}]]>
+                   <![CDATA[$download_data = array_merge($download_data, $download_option_data);]]>
+                   <![CDATA[}]]>
+                </add>
+            </operation>
+        </file>
+       
+       
+       
+        <file name="admin/model/catalog/product.php">
+           <operation error="skip">
+               <search position="after"><![CDATA[public function getTotalProducts($data = array()) {]]></search>
+               <add> 
+                    <![CDATA[$table = $this->db->query("SHOW COLUMNS FROM " . DB_PREFIX . "product_option_value WHERE Field='download_id'");]]>
+                    <![CDATA[if ($table->num_rows==0) {]]>
+                    <![CDATA[$this->db->query("ALTER TABLE `" . DB_PREFIX . "product_option_value` ADD `download_id` INT NOT NULL AFTER `weight_prefix`");]]>
+                    <![CDATA[}]]>
+               </add>
+           </operation>
+           <operation error="skip">
+               <search position="replace"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");]]></search>
+               <add> 
+                    <![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");]]>
+               </add>
+           </operation>
+           <operation error="skip">
+               <search position="replace"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_value_id = '" . (int)$product_option_value['product_option_value_id'] . "', product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");]]></search>
+               <add> 
+                    <![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_value_id = '" . (int)$product_option_value['product_option_value_id'] . "', product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "', download_id = '" . (int)$product_option_value['download_id'] . "'");]]>
+               </add>
+           </operation>
+           
+           <operation error="skip">
+               <search position="before"  offset="0" index="1"><![CDATA[if (isset($data['product_download'])) {]]></search>
+               <add> 
+                    <![CDATA[if (isset($data['product_option'])) {]]>
+                     <![CDATA[	foreach ($data['product_option'] as $product_option) {]]>
+                     <![CDATA[            if ($product_option['type'] == 'select' || $product_option['type'] == 'radio' || $product_option['type'] == 'checkbox' || $product_option['type'] == 'image') {]]>
+                     <![CDATA[                    if (isset($product_option['product_option_value'])  && count($product_option['product_option_value']) > 0 ) {]]>
+                     <![CDATA[                            foreach ($product_option['product_option_value'] as $product_option_value) {]]>
+                    <![CDATA[                              if($product_option_value['download_id'] > 0){   ]]>
+                     <![CDATA[                                $this->db->query("REPLACE INTO " . DB_PREFIX . "product_to_download SET ]]>
+                     <![CDATA[                                    product_id = '" . (int)$product_id . "', ]]>
+                     <![CDATA[                                    download_id = '" . (int)$product_option_value['download_id'] . "'");]]>
+                     <![CDATA[                               }]]>
+                     <![CDATA[                            }]]>
+                     <![CDATA[                    }]]>
+                     <![CDATA[            }]]>					
+                     <![CDATA[	}]]>
+                     <![CDATA[}]]>
+               </add>
+           </operation>
+           <operation error="skip">
+               <search position="replace"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_download SET product_id = '" . (int)$product_id . "', download_id = '" . (int)$download_id . "'");]]></search>
+               <add> 
+                    <![CDATA[$this->db->query("REPLACE INTO " . DB_PREFIX . "product_to_download SET product_id = '" . (int)$product_id . "', download_id = '" . (int)$download_id . "'");]]>
+               </add>
+           </operation>  
+           <operation error="skip">
+               <search position="replace"><![CDATA['weight_prefix'           => $product_option_value['weight_prefix']]]></search>
+               <add> 
+                    <![CDATA['weight_prefix'           => $product_option_value['weight_prefix'],]]> 
+                    <![CDATA['download_id'           => $product_option_value['download_id']]]>
+               </add>
+           </operation>     
+       </file>      
+       
+       
+       
+       
+       <file name="admin/controller/catalog/product.php">
+           <operation error="skip">
+               <search position="after"  offset="0" ><![CDATA[$this->data['entry_layout'] = $this->language->get('entry_layout');]]></search>
+               <add><![CDATA[$this->data['entry_download_option'] = $this->language->get('entry_download_option');]]></add>
+           </operation>
+                                                                                                       
+           <operation error="skip">
+               <search position="after"><![CDATA[$product_option_value_data = array();]]></search>
+               <add>
+                   <![CDATA[$product_option_download_id = array();]]>     
+		</add>
+           </operation>   
+           <operation error="skip">
+               <search position="after" index="1"><![CDATA[foreach ($product_option['product_option_value'] as $product_option_value) {]]></search>
+               <add>
+                   <![CDATA[$product_option_download_id[]= $product_option_value['download_id'];]]>    
+		</add>
+           </operation> 
+           <operation error="skip">
+               <search position="replace"><![CDATA['weight_prefix'           => $product_option_value['weight_prefix']]]></search>
+               <add>
+                   <![CDATA['weight_prefix'           => $product_option_value['weight_prefix'],]]>
+                   <![CDATA['download_id'           => $product_option_value['download_id']]]>      
+		</add>
+           </operation>
+           <operation error="skip">
+               <search position="after"  offset="0"><![CDATA[$this->load->model('catalog/download');]]></search>
+               <add>
+                   <![CDATA[$this->data['downloads'] = $this->model_catalog_download->getDownloads();]]>
+               </add>
+           </operation>
+       </file>
+       
+                    
+                     
+                       
+       <file name="admin/view/template/catalog/product_form.tpl">
+           <operation error="skip">
+               <search position="after"  offset="8"><![CDATA[<table id="option-value<?php echo $option_row; ?>" class="list">]]></search>
+               <add><![CDATA[<td class="left"><?php echo $entry_download_option; ?></td>]]></add>
+           </operation>
+           <operation error="skip">
+               <search position="after"  offset="0"><![CDATA[<input type="text" name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][weight]" value="<?php echo $product_option_value['weight']; ?>" size="5" />]]></search>
+               <add><![CDATA[<td class="left">]]>
+               <![CDATA[<select name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][download_id]">]]>
+               <![CDATA[<option value=""></option>]]>
+               <![CDATA[<?php foreach ($downloads as $download) { ?>]]>
+               <![CDATA[<?php if ($download['download_id'] == $product_option_value['download_id']) { ?>]]>
+               <![CDATA[<option value="<?php echo $download['download_id']; ?>" selected="selected"><?php echo $download['name']; ?></option>]]>
+               <![CDATA[<?php } else { ?>]]>
+               <![CDATA[<option value="<?php echo $download['download_id']; ?>"><?php echo $download['name']; ?></option>]]>
+               <![CDATA[<?php } ?>]]>
+               <![CDATA[<?php } ?>]]>
+               <![CDATA[</select>]]>
+               <![CDATA[</td>]]></add>
+           </operation>
+           <operation error="skip">
+               <search position="after" offset="0"><![CDATA[html += '        <td class="right"><?php echo $entry_weight; ?></td>';]]></search>
+               <add><![CDATA[html += '        <td class="left"><?php echo $entry_download_option; ?></td>';]]></add>
+           </operation>
+           <operation error="skip">
+               <search position="after" offset="0"><![CDATA[html += '    <input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][weight]" value="" size="5" /></td>';]]></search>
+               <add>
+                    <![CDATA[html += ' <td class="left"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][download_id]">';]]>
+                    <![CDATA[html += ' <option value=""></option>';]]>
+                    <![CDATA[<?php foreach ($downloads as $download) { ?>]]>
+                    <![CDATA[html += ' <option value="<?php echo $download['download_id']; ?>"><?php echo $download['name']; ?></option>';]]>
+                    <![CDATA[<?php } ?>]]>
+                    <![CDATA[html += ' </select></td>';]]>
+               </add>
+           </operation>
+       </file>   
+       
+       
+       
+       <file name="admin/language/*/catalog/product.php">
+           <operation error="skip">
+               <search position="after"  offset="0"><![CDATA[$_['entry_layout']           = 'Layout Override:';]]></search>
+               <add><![CDATA[$_['entry_download_option']           = 'download option';]]></add>
+           </operation>
+       </file>        
+
+</modification>

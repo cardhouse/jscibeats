@@ -1,0 +1,3211 @@
+<modification>
+	<id><![CDATA[Multi tier affiliate system]]></id>
+	<version><![CDATA[1.4.0130]]></version>
+	<vqmver><![CDATA[2.1.7]]></vqmver>
+	<author><![CDATA[YP]]></author>
+	<file name="admin/controller/common/header.php">
+		<operation error="log">
+			<search position="after" index="1"><![CDATA[_backup']]></search>
+			<add><![CDATA[
+
+$this->data['text_mta'] = $this->language->get('text_mta');
+
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="after" trim="false"><![CDATA['backup']]></search>
+			<add><![CDATA[
+
+$this->data['mta'] = $this->url->link('mta/mta', 'token=' . $this->session->data['token'], 'SSL');
+
+]]></add>
+		</operation>		
+	</file>				
+
+	<file name="admin/view/template/common/header.tpl">
+		<operation error="log">
+			<search position="after" index="1"><![CDATA[$text_backup]]></search>
+			<add><![CDATA[
+
+<li><a href="<?php echo $mta; ?>"><?php echo $text_mta; ?></a></li>
+
+]]></add>
+		</operation>
+	</file>
+
+	<file name="system/library/user.php">	
+		<operation>
+			<search position="after"><![CDATA[class User]]></search>
+			<add><![CDATA[
+
+private $user_group_id = 0;
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->username = $user_query->row['username'];]]></search>
+			<add><![CDATA[
+
+$this->user_group_id = (int)$user_query->row['user_group_id'];
+
+]]></add>
+		</operation>		
+		<operation>
+			<search position="after"><![CDATA[function hasPermission]]></search>
+			<add><![CDATA[
+
+if($this->user_group_id === 1) return true;
+
+]]></add>
+		</operation>		
+	</file>
+
+	<file name="system/startup.php">
+		<operation>
+			<search position="after"><![CDATA['helper/utf8.php']]></search>
+			<add><![CDATA[
+//+mod by yp start
+require_once(DIR_SYSTEM . 'helper/mta_util.php'); 
+if (isset($_REQUEST['mta']) && !isset($_COOKIE['mta'])) {
+	setcookie('mta', $_REQUEST['mta'], time() + 3600 * 24 * 1000, '/');
+}
+//+mod by yp end
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/model/affiliate/affiliate.php">
+		<operation>
+			<search position="before"><![CDATA[$this->language->load('mail/affiliate');]]></search>
+			<add><![CDATA[
+
+if(!isset($affiliate_id)) $affiliate_id = $this->db->getLastId();
+if(!$affiliate_id) return false;
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$mail->send();]]></search>
+			<add><![CDATA[
+
+return $affiliate_id;
+
+]]></add>
+		</operation>		
+	</file>	
+
+	<file name="catalog/controller/account/register.php">
+		<operation>
+			<search position="before" trim="false" regex="true"><![CDATA[~.this->model_account_customer->addCustomer\s*\(\s*.this->request->post\s*\)\;~]]></search>
+			<add><![CDATA[
+
+			if(!isset($this->request->post['tracking'])) {
+				if(isset($this->request->cookie['tracking'])) {
+					$this->request->post['tracking'] = $this->request->cookie['tracking'];
+				} else if(isset($this->request->get['tracking'])) {
+					$this->request->post['tracking'] = $this->request->cookie['tracking'];
+				}
+			}			
+			
+]]></add>
+			</operation>
+	</file>
+	
+	<file name="catalog/controller/checkout/register.php">
+		<operation>
+			<search position="before" trim="false" regex="true"><![CDATA[~.this->model_account_customer->addCustomer\s*\(\s*.this->request->post\s*\)\;~]]></search>
+			<add><![CDATA[
+
+			if(!isset($this->request->post['tracking'])) {
+				if(isset($this->request->cookie['tracking'])) {
+					$this->request->post['tracking'] = $this->request->cookie['tracking'];
+				} else if(isset($this->request->get['tracking'])) {
+					$this->request->post['tracking'] = $this->request->cookie['tracking'];
+				}
+			}			
+			
+]]></add>
+			</operation>
+	</file>
+
+
+
+	<file name="catalog/controller/affiliate/register.php">
+		<operation>
+			<search position="after" trim="false"><![CDATA[private $error]]></search>
+			<add><![CDATA[
+
+	  private function _find_parent() {
+			$this->load->model('affiliate/mta_affiliate');
+			if (isset($this->request->cookie['tracking'])) {
+				$this->load->model('affiliate/affiliate');				
+				$res = $this->model_affiliate_affiliate->getAffiliateByCode($this->request->cookie['tracking']);
+				if($res && $this->model_affiliate_mta_affiliate->check_aff_active($res['affiliate_id'])) return $res['affiliate_id'];
+			}			
+			if ($this->customer->isLogged()) {
+				$_aff_id = $this->model_affiliate_mta_affiliate->getCustomerAffiliateId($this->customer->getId(), 'active_only');
+				if($_aff_id) return $_aff_id;
+			}			
+			if(isset($this->request->post['email']) && $this->request->post['email']) return $this->model_affiliate_mta_affiliate->findParentByEmail($this->request->post['email'], 'active_only');
+			return false;				
+		}	  
+		
+]]></add>
+		</operation>
+		
+		<operation>
+			<search position="after" trim="false" regex="true"><![CDATA[~if\s*\(\s*\(\s*.this->request->server\[\'request_method\'\]\s*=+\s*\'post\'\s*\)\s*\&+\s*.this->validate\s*\(\s*\)\s*\)\s*\{\s*~i]]></search>
+			<add><![CDATA[
+				
+    		$this->load->model('affiliate/mta_affiliate');
+    		$new_affiliate_id = $this->model_affiliate_affiliate->addAffiliate($this->request->post);
+				if($new_affiliate_id) {
+					$this->model_affiliate_mta_affiliate->addAffiliate($new_affiliate_id, $this->_find_parent(), (isset($this->request->cookie['mta']) ? $this->request->cookie['mta'] : ''));
+					$this->affiliate->login($this->request->post['email'],$this->request->post['password']);
+					$_l = 'affiliate/success';
+	  			$this->redirect($this->url->link($_l));
+	  		} else {
+	  			$this->error['warning'] = $this->language->get('error_database');
+	  		}
+	  		/*
+
+]]></add>
+		</operation>		
+
+		<operation>
+			<search position="after" trim="false" regex="true"><![CDATA[~.this->redirect\s*\(.this->url->link\s*\(\s*\'affiliate/success\'\s*\)\s*\)\;~]]></search>
+			<add><![CDATA[
+    	
+*/
+
+]]></add>
+		</operation>			
+	</file>	
+	<file name="admin/model/tool/backup.php">
+		<operation error="log">
+			<search position="after">				
+			<![CDATA[function restore]]></search>
+			<add><![CDATA[
+
+$this->db->query("SET FOREIGN_KEY_CHECKS=0");
+
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="after">				
+			<![CDATA[$this->cache->delete('*');]]></search>
+			<add><![CDATA[
+
+$this->db->query("SET FOREIGN_KEY_CHECKS=1");
+
+]]></add>
+		</operation>		
+	</file>		
+	<file name="admin/model/sale/coupon.php">
+		<operation error="log">
+			<search position="after">				
+			<![CDATA[function deleteCoupon]]></search>
+			<add><![CDATA[
+
+		$this->db->query("delete from " . DB_PREFIX . "mta_product where price_mod_type='coupon' and price_mod_id='" . (int)$coupon_id . "'");
+		$this->db->query("delete from " . DB_PREFIX . "mta_product_affiliate where price_mod_type='coupon' and price_mod_id='" . (int)$coupon_id . "'");
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/model/account/customer.php">
+		<operation>
+			<search position="after" trim="false" index="1"><![CDATA[function addCustomer]]></search>
+			<add><![CDATA[
+
+		$aff_id = 0;
+		if (isset($this->request->cookie['tracking']) || isset($data['tracking'])) $this->load->model('affiliate/affiliate');
+		if (isset($this->request->cookie['tracking'])) {			
+			$affiliate_info = $this->model_affiliate_affiliate->getAffiliateByCode($this->request->cookie['tracking']);				
+			if ($affiliate_info) $aff_id = $affiliate_info['affiliate_id'];
+		}
+		if(!$aff_id && isset($data['tracking'])) {
+			$affiliate_info = $this->model_affiliate_affiliate->getAffiliateByCode($data['tracking']);		
+			if ($affiliate_info) $aff_id = $affiliate_info['affiliate_id'];
+		}
+			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" trim="false" regex="true"><![CDATA[~.customer_id\s*=\s*.this->db->getLastId\s*\(\s*\)\;~]]></search>
+			<add><![CDATA[
+
+			if($aff_id && !$this->config->get('mta_ypx_no_aff_in_cust_acc')) $this->db->query("UPDATE " . DB_PREFIX . "customer SET affiliate_id='" . (int) $aff_id . "' WHERE customer_id='" . (int) $customer_id . "'");
+
+]]></add>
+		</operation>
+		</file>	
+
+	<file name="admin/model/sale/order.php">
+		<operation>
+			<search position="after" trim="false" index="1"><![CDATA[function addOrderHistory]]></search>
+			<add><![CDATA[
+
+		//+mod by yp start
+		$_autoadd_statuses = $this->config->get('mta_ypx_autoadd_statuses');
+		if(!is_array($_autoadd_statuses)) $_autoadd_statuses = array($this->config->get('config_complete_status_id'));
+		if(in_array(strval($data['order_status_id']), $_autoadd_statuses)) {
+		//if($data['order_status_id'] == $this->config->get('config_complete_status_id')) {
+			$this->load->model('sale/affiliate');
+			$_comms = $this->model_sale_affiliate->getOrderCommissions($order_id);
+			$_lang_loaded = false;
+			foreach($_comms as $_c) {			
+				if(!$_c['commission_added'] && $_c['autoadd']) {
+					if(!$_lang_loaded) {
+						$this->language->load('mta/mta');
+						$_lang_loaded = true;
+					}
+					$this->model_sale_affiliate->addMtaTransaction($order_id, $_c['affiliate_id'], $this->language->get('text_order_id') . ' #' . $order_id);
+				}
+			}
+		}
+		//+mod by yp end
+
+]]></add>
+		</operation>
+	</file>	
+
+
+	<file name="catalog/model/checkout/order.php">
+		<operation>
+			<search position="before"><![CDATA[SET order_status_id]]></search>
+			<add><![CDATA[
+
+		//+mod by yp start
+		$_autoadd_statuses = $this->config->get('mta_ypx_autoadd_statuses');
+		if(!is_array($_autoadd_statuses)) $_autoadd_statuses = array($this->config->get('config_complete_status_id'));
+		if(in_array(strval($order_status_id), $_autoadd_statuses)) $this->_autoaddCommissions($order_id);		
+		//if($order_status_id == $this->config->get('config_complete_status_id')) 		$this->_autoaddCommissions($order_id);
+		//+mod by yp end
+
+]]></add>
+		</operation>		
+		<operation>
+			<search position="before" trim="false" index="1"><![CDATA[function addOrder]]></search>
+			<add><![CDATA[
+
+	private function _autoaddCommissions($order_id) {		
+		$this->load->model('affiliate/mta_affiliate');
+		$_comms = $this->model_affiliate_mta_affiliate->getOrderCommissions($order_id);
+		$_lang_loaded = false;
+		foreach($_comms as $_c) {
+			if(!$_c['commission_added'] && $_c['autoadd']) {
+				if(!$_lang_loaded) {
+					$this->language->load('affiliate/mta');
+					$_lang_loaded = true;
+				}
+				$this->model_affiliate_mta_affiliate->addMtaTransaction($order_id, $_c['affiliate_id'], $this->language->get('text_order_id') . ' #' . $order_id);
+			}
+		}
+	}
+
+]]></add>
+		</operation>		
+	</file>	
+
+	<file name="catalog/model/affiliate/transaction.php">
+		<operation>
+			<search position="before" trim="false" index="1"><![CDATA[function getTransactions]]></search>
+			<add><![CDATA[
+
+	public function getTotalEarnings() {
+		$query = $this->db->query("SELECT SUM(amount) AS total FROM `" . DB_PREFIX . "affiliate_transaction` WHERE affiliate_id = '" . (int)$this->affiliate->getId() . "' and amount > 0 GROUP BY affiliate_id");
+		
+		if ($query->num_rows) {
+			return $query->row['total'];
+		} else {
+			return 0;	
+		}
+	}
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/view/theme/*/template/affiliate/transaction.tpl">
+		<operation skip="true">
+			<search position="after" trim="false" index="1"><![CDATA[$text_balance]]></search>
+			<add><![CDATA[
+
+	<p><?php echo $text_total_earnings; ?><b> <?php echo $total_earnings; ?></b>.</p>
+	<?php if($sub_affiliates) {?>
+	<div style="padding:5px;"><a href="javascript:;" id="view_subs_link"><?php echo $text_view_subs;?></a></div>
+	<table class="list" style="display:none;width:30%;" id="view_subs_table">
+    <thead>
+      <tr>
+        <td class="right"><?php echo $column_level; ?></td>
+        <td class="left"><?php echo $column_num_affs; ?></td>
+		</thead>
+		<tbody>
+		<?php foreach($sub_affiliates as $_sub_aff) {?>
+			<tr>
+				<td class="right"><?php echo $_sub_aff['level'];?></td>
+				<td class="left"><?php echo $_sub_aff['num'];?></td>
+			</tr>
+		<?php }?>
+		</tbody>
+	</table>
+	<?php }?>
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" trim="false"><![CDATA[$footer;]]></search>
+			<add><![CDATA[
+
+<script language="javascript">
+$(document).ready(function() {
+	$('#view_subs_link').click(function() {
+		$('#view_subs_table').toggle();
+	});	
+});
+</script>
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/controller/affiliate/transaction.php">
+		<operation>
+			<search position="before" trim="false" regex="true"><![CDATA[~.this->data\[\'continue\'\]\s*\=\s*.this->url->link\s*\(\s*\'affiliate\/account\'\,\s*\'\'\,\s*\'SSL\'\s*\)\s*\;~]]></search>
+			<add><![CDATA[
+		$this->load->language('affiliate/mta');
+		$this->data['text_total_earnings'] = $this->language->get('text_total_earnings');
+		$this->data['text_view_subs'] = $this->language->get('text_view_subs');
+		$this->data['column_level'] = $this->language->get('column_level');
+		$this->data['column_num_affs'] = $this->language->get('column_num_affs');		
+		$this->data['total_earnings'] = $this->currency->format($this->model_affiliate_transaction->getTotalEarnings());	
+		$this->load->model('affiliate/mta_affiliate');
+		$_sub_affs = $this->model_affiliate_mta_affiliate->getSubAffiliates(((int)$this->affiliate->getId()));		
+		if($_sub_affs) {
+			$this->data['sub_affiliates'] = array();
+			foreach($_sub_affs as $_i => $_num) {
+				$this->data['sub_affiliates'][] = array('level' => ($_i + 1), 'num' => $_num);
+			}
+		} else {
+			$this->data['sub_affiliates'] = false;
+		}
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/controller/affiliate/account.php">
+		<operation>
+			<search position="after" trim="false" regex="true"><![CDATA[~.this->data\[\'transaction\'\]\s*=\s*.this->url->link\s*\(\s*\'affiliate\/transaction\'\,\s*\'\'\,\s*\'SSL\'\s*\)\;~]]></search>
+			<add><![CDATA[
+
+			$this->load->language('affiliate/mta');
+			$this->data['text_signup_link'] = $this->language->get('text_signup_link');
+			$this->data['signup_link'] = $this->url->link('affiliate/register', '', 'SSL') . (strpos($this->url->link('affiliate/register', '', 'SSL'), '?') === false ? '?' : '&amp;') .  'tracking=' . $this->affiliate->getCode();
+			$this->data['text_aff_link_any_page'] = $this->language->get('text_aff_link_any_page');
+			
+]]></add>
+		</operation>
+	</file>	
+	
+	<file name="catalog/view/theme/*/template/affiliate/account.tpl">
+		<operation>
+			<search position="before" trim="false" index="1"><![CDATA[$content_bottom]]></search>
+			<add><![CDATA[
+
+	<h3><?php echo $text_signup_link; ?></h3>
+	<div class="content">
+		<div style="padding:10px;font-weight:bold;font-style:italic;color:#232;"><?php echo $signup_link;?></div><div><br /><?php echo $text_aff_link_any_page;?></div>
+	</div>
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="admin/model/sale/customer.php">
+		<operation>
+			<search position="after" trim="false" regex="true"><![CDATA[~.customer_id\s*=\s*.this->db->getLastId\s*\(\s*\)\;~]]></search>
+			<add><![CDATA[
+
+				if(isset($data['affiliate_id']) && mta_check_int($data['affiliate_id']) && $data['affiliate_id'] > 0) $this->db->query("UPDATE " . DB_PREFIX . "customer SET affiliate_id='" . (int) $data['affiliate_id'] . "' where customer_id='" . (int) $customer_id . "'");
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" trim="false" regex="true"><![CDATA[~if\s*\(\s*.data\[\'password\'\]\s*\)\s*\{~]]></search>
+			<add><![CDATA[
+
+				if(isset($data['affiliate_id']) && mta_check_int($data['affiliate_id'])) $this->db->query("UPDATE " . DB_PREFIX . "customer SET affiliate_id='" . (int) $data['affiliate_id'] . "' where customer_id='" . (int) $customer_id . "'");
+
+]]></add>
+		</operation>		
+	</file>	
+
+	<file name="admin/controller/sale/customer.php">
+		<operation>
+			<search position="after" trim="false" index="1"><![CDATA[function getForm]]></search>
+			<add><![CDATA[
+			
+			$this->document->addStyle('view/stylesheet/jquery.dataTables.css');
+			foreach(array('entry_affiliate', 'text_select_affiliate', 'text_set_none', 'text_none', 'oy_close', 'oy_title', 'oy_loading', 'oy_id', 'oy_name', 'oy_email', 'oy_scheme', 'oy_level', 'oy_balance', 'oy_date_added') as $_k) {
+				$this->data[$_k] = $this->language->get($_k);
+			}
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" trim="false" regex="true"><![CDATA[~if\s*\(\s*isset\s*\(\s*.this->request->post\[\'firstname\'\]\s*\)\s*\)\s*\{~]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+    	if (isset($this->request->post['affiliate_id'])) {
+      		$this->data['affiliate_id'] = $this->request->post['affiliate_id'];
+		} elseif (!empty($customer_info)) { 
+			$this->data['affiliate_id'] = $customer_info['affiliate_id'];
+		} else {
+      		$this->data['affiliate_id'] = 0;
+    	}		
+			if($this->data['affiliate_id'])	{
+				$this->load->model('sale/affiliate');
+				$_aff = $this->model_sale_affiliate->getAffiliate($this->data['affiliate_id']);
+				if(is_array($_aff) && isset($_aff['firstname'])) {
+					$this->data['affiliate_name'] = $_aff['firstname'] . ' ' . $_aff['lastname'];
+				} else {
+					$this->data['affiliate_id'] = 0;
+				}
+			} else {
+				$this->data['affiliate_name'] = '';
+			}
+			if($this->data['affiliate_id']) $this->data['affiliate_link'] = $this->url->link('sale/affiliate/update', 'token=' . $this->session->data['token'] . '&affiliate_id=' . $this->data['affiliate_id'], 'SSL');
+			
+			//+mod by yp end							
+
+]]></add>
+		</operation>		
+		</file>
+		
+	<file name="admin/view/template/sale/order_form.tpl">
+		<operation>
+			<search position="replace" trim="false" regex="true"><![CDATA[~\s*<td[^>]*>\s*<input\s*type=\"text\"\s*name=\"affiliate\"\s*value=\"<\?php\s*echo\s*.affiliate\;\s*\?>\"\s*\/>\s*~]]></search>
+			<add><![CDATA[
+
+<td class="left"><input type="text" name="affiliate" value="<?php echo $affiliate; ?>" readonly="readonly" /><?php /* //+mod by yp */ ?>
+<br /><?php echo $text_affiliates_edit_in_view;?><?php /* //+mod by yp */ ?>
+
+]]></add>
+		</operation>
+	</file>
+
+	<file name="catalog/controller/common/footer.php">
+		<operation>
+			<search position="after" trim="false" index="1"><![CDATA[function index]]></search>
+			<add><![CDATA[
+
+		//+mod by yp start
+		if($this->affiliate->isLogged()) {
+			//$this->session->data['mta_als_code'] = $this->affiliate->getCode();
+			$this->document->addScript('catalog/view/javascript/mta_als.js.php?t=' . urlencode($this->affiliate->getCode()));
+		}
+		//+mod by yp end
+]]></add>
+		</operation>
+	</file>
+
+	<file name="admin/view/template/sale/order_info.tpl">
+		<operation error="log">
+			<search position="after" trim="false" offset="1"><![CDATA[<span id="commission"><b>[</b> <a id="commission-remove"><?php echo $text_commission_remove; ?></a> <b>]</b></span>]]></search>
+			<add><![CDATA[
+          <?php //+mod by yp start
+					} else if ($affiliates) {?>
+          <tr>
+            <td><?php echo $text_affiliates; ?></td>
+            <td>
+							<div style="padding:3px;">
+								<table class="list">
+									<thead>
+										<tr>
+											<td class="right"><?php echo $column_affiliate;?></td>
+											<td><?php echo $column_product_name;?></td>
+											<td><?php echo $column_product_commission;?></td>
+											<td><?php echo $column_scheme;?></td>
+											<td><?php echo $column_total_commission;?></td>
+											<td>&nbsp;</td>								
+										</tr>
+									</thead>
+									<tbody>
+									<?php foreach($affiliates as $_aff) {
+										if($_aff['num_rows'] < 2) {
+										?>
+									<tr>
+										<td class="right"><a href="<?php echo $_aff['affiliate_link'];?>" target="_blank"><?php echo $_aff['affiliate_name'];?></a>
+										</td>
+										<td class="left"><?php echo $_aff['product_name'];?>
+										</td>										
+										<td class="left"><?php echo $_aff['commission'];?>
+										</td>
+										<td class="left"><a href="<?php echo $_aff['affiliate_scheme_link'];?>" target="_blank"><?php echo $_aff['affiliate_scheme_name'];?></a></td>
+										<td class="left"><?php echo $_aff['commission_total'];?>
+										</td>										
+										<td class="left">
+										<?php
+											if(!$_aff['commission_added']) {?>
+											<span id="commission-<?php echo $_aff['affiliate_id'];?>"><b>[</b> <a id="commission-add-<?php echo $_aff['affiliate_id'];?>" class="commission-add"><?php echo $text_commission_add; ?></a> <b>]</b></span>
+											<?php } else {?>
+  										<span id="commission-<?php echo $_aff['affiliate_id'];?>"><b>[</b> <a id="commission-remove-<?php echo $_aff['affiliate_id'];?>" class="commission-remove"><?php echo $text_commission_remove; ?></a> <b>]</b></span>												
+											<?php }?>
+										</td>
+									</tr>
+									<?php } else {?>
+									<tr>
+										<td class="right" rowspan="<?php echo $_aff['num_rows'];?>"><a href="<?php echo $_aff['affiliate_link'];?>" target="_blank"><?php echo $_aff['affiliate_name'];?></a>
+										</td>
+										<td class="left"><?php echo $_aff['data'][0]['product_name'];?>
+										</td>										
+										<td class="left"><?php echo $_aff['data'][0]['commission'];?>
+										</td>
+										<td class="left"><a href="<?php echo $_aff['data'][0]['affiliate_scheme_link'];?>" target="_blank"><?php echo $_aff['data'][0]['affiliate_scheme_name'];?></a></td>
+										<td class="left" rowspan="<?php echo $_aff['num_rows'];?>"><?php echo $_aff['commission_total'];?>
+										</td>										
+										<td class="left" rowspan="<?php echo $_aff['num_rows'];?>">
+										<?php
+											if(!$_aff['commission_added']) {?>
+											<span id="commission-<?php echo $_aff['affiliate_id'];?>"><b>[</b> <a id="commission-add-<?php echo $_aff['affiliate_id'];?>" class="commission-add"><?php echo $text_commission_add; ?></a> <b>]</b></span>
+											<?php } else {?>
+  										<span id="commission-<?php echo $_aff['affiliate_id'];?>"><b>[</b> <a id="commission-remove-<?php echo $_aff['affiliate_id'];?>" class="commission-remove"><?php echo $text_commission_remove; ?></a> <b>]</b></span>
+											<?php }?>
+										</td>
+									</tr>
+									<?php for ($_i = 1; $_i < $_aff['num_rows']; $_i++) {?>
+									<tr>
+										<td class="left"><?php echo $_aff['data'][$_i]['product_name'];?>
+										</td>										
+										<td class="left"><?php echo $_aff['data'][$_i]['commission'];?>
+										</td>
+										<td class="left"><a href="<?php echo $_aff['data'][$_i]['affiliate_scheme_link'];?>" target="_blank"><?php echo $_aff['data'][$_i]['affiliate_scheme_name'];?></a></td>
+									</tr>
+									<?php 	}
+										}
+									}?>
+									</tbody>
+								</table>
+							</div>
+						</td>
+          </tr>
+		  
+			]]></add>
+		</operation>
+
+		<operation>
+			<search position="before" trim="false"><![CDATA[$('#history .pagination a').live('click', function() {]]></search>
+			<add><![CDATA[
+
+$('.commission-add').live('click', function() {
+	var _id = $(this).attr('id').replace(/[^\d]+/g, '');
+	$.ajax({
+		type: 'POST',
+		url: 'index.php?route=sale/order/addcommission&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>&affiliate_id='+_id,
+		dataType: 'json',
+		beforeSend: function() {
+			$('#commission-'+_id).after('<img src="view/image/loading.gif" class="loading" style="padding-left: 5px;" />');			
+		},
+		complete: function() {
+			$('.loading').remove();
+		},			
+		success: function(json) {
+			$('.success').remove();
+			$('.warning').remove();
+						
+			if (json['error']) {
+				 $('.breadcrumb').after('<div class="warning" style="display: none;">' + json['error'] + '</div>');
+				
+				$('.warning').fadeIn('slow');
+			}
+			
+			if (json['success']) {
+                 $('.breadcrumb').after('<div class="success" style="display: none;">' + json['success'] + '</div>');
+				
+				$('.success').fadeIn('slow');
+                
+				$('#commission-'+_id).html('<b>[</b> <a id="commission-remove-'+_id+'" class="commission-remove"><?php echo $text_commission_remove; ?></a> <b>]</b>');
+			}
+		}
+	});
+});
+
+$('.commission-remove').live('click', function() {
+	var _id = $(this).attr('id').replace(/[^\d]+/g, '');
+	$.ajax({
+		type: 'POST',
+		url: 'index.php?route=sale/order/removecommission&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>&affiliate_id='+_id,
+		dataType: 'json',
+		beforeSend: function() {
+			$('#commission'+_id).after('<img src="view/image/loading.gif" class="loading" style="padding-left: 5px;" />');			
+		},
+		complete: function() {
+			$('.loading').remove();
+		},			
+		success: function(json) {
+			$('.success').remove();
+			$('.warning').remove();
+						
+			if (json['error']) {
+				 $('.breadcrumb').after('<div class="warning" style="display: none;">' + json['error'] + '</div>');
+				
+				$('.warning').fadeIn('slow');
+			}
+			
+			if (json['success']) {
+                 $('.breadcrumb').after('<div class="success" style="display: none;">' + json['success'] + '</div>');
+				
+				$('.success').fadeIn('slow');
+				
+				$('#commission-'+_id).html('<b>[</b> <a id="commission-add-'+_id+'" class="commission-add"><?php echo $text_commission_add; ?></a> <b>]</b>');
+			}
+		}
+	});
+});
+			
+			]]></add>
+		</operation>
+		</file>
+<!-- LANGUAGE -->
+	<file name="admin/language/*/sale/customer.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+$_['entry_affiliate'] = 'Parent Affiliate:';
+$_['text_select_affiliate'] = 'Select Affiliate';
+$_['text_set_none'] = 'Set to None';
+$_['text_none'] = 'None';
+
+$_['oy_close'] = 'Close';
+$_['oy_title'] = 'Affiliates - Click to Select';
+$_['oy_loading'] = 'Loading data from server ...';
+$_['oy_id'] = 'ID';
+$_['oy_name'] = 'Name';
+$_['oy_email'] = 'Email';
+$_['oy_scheme'] = 'Scheme';
+$_['oy_level'] = 'Level';
+$_['oy_balance'] = 'Balance';
+$_['oy_date_added'] = 'Date Added';			
+
+]]></add>
+		</operation>
+	</file>
+
+	<file name="admin/language/*/mail/affiliate.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+$_['text_payment_received'] = 'You have been sent %s payment!';
+$_['text_balance']    = 'Your current balance is now %s.';
+
+
+
+]]></add>
+		</operation>
+	</file>	
+
+
+
+	<file name="catalog/language/*/checkout/checkout.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+			
+$_['text_order_id']           = 'Order ID:';
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/language/*/mail/affiliate.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+$_['text_approve_subject']      = '%s - Your Affiliate Account has been activated!';
+$_['text_approve_welcome']      = 'Welcome and thank you for registering at %s!';
+$_['text_approve_login']        = 'Your account has now been created and you can log in by using your email address and password by visiting our website or at the following URL:';
+$_['text_approve_services']     = 'Upon logging in, you will be able to generate tracking codes, track commission payments and edit your account information.';
+$_['text_approve_thanks']       = 'Thanks,';
+$_['text_transaction_subject']  = '%s - Affiliate Commission';
+$_['text_transaction_received'] = 'You have received %s commission!';
+$_['text_transaction_total']    = 'Your total amount of commission is now %s.';
+
+
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="admin/language/*/*.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+$_['word_affiliate'] = 'affiliate';
+$_['word_product'] = 'product';
+$_['word_coupon'] = 'coupon';
+$_['word_discount'] = 'discount';
+$_['word_special'] = 'special';
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="catalog/language/*/*.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+$_['error_database'] = 'Database Error';
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="admin/language/*/common/header.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+$_['text_mta']                         = 'MultiTier Affiliate System';
+
+]]></add>
+		</operation>
+	</file>	
+
+	<file name="admin/language/*/catalog/product.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+//+mod by yp start
+$_['column_mta_scheme']      = 'Commission Scheme';
+$_['text_edit_mta_schemes']  = 'Edit Custom Commissions';
+$_['entry_mta_schemes'] = 'Custom Commission';
+$_['text_hide'] = 'Hide';
+$_['text_default'] = 'Default';
+$_['tab_scheme'] = 'Commission';
+$_['entry_product'] = 'Product:';
+$_['entry_coupons'] = 'Coupons:';
+$_['text_aff_schemes'] = 'Custom Schemes for Selected Affiliates';
+$_['column_affiliates'] = 'Affiliates';
+$_['column_coupon'] = 'Coupon';
+$_['text_edit'] = 'Edit';
+$_['text_add'] = 'Add';
+
+$_['oy_close'] = 'Close';
+$_['oy_title'] = 'Affiliates - Click to Select';
+$_['oy_loading'] = 'Loading data from server ...';
+$_['oy_id'] = 'ID';
+$_['oy_name'] = 'Name';
+$_['oy_email'] = 'Email';
+$_['oy_scheme'] = 'Scheme';
+$_['oy_level'] = 'Level';
+$_['oy_balance'] = 'Balance';
+$_['oy_date_added'] = 'Date Added';
+
+$_['button_add_selected'] = 'Add Selected';
+$_['button_remove_selected'] = 'Remove Selected';
+$_['error_commission_price'] = 'Error: Total commission can not be higher than the price of a product!';
+//+mod by yp end
+
+]]></add>
+		</operation>
+	</file>	
+	
+	<file name="admin/language/*/report/affiliate_commission.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+//+mod by yp start
+$_['column_current_balance'] = 'Current Balance';
+$_['text_no_payout_account'] = 'This affiliate have not set up any payout account yet !';
+$_['entry_current_balance'] = 'Current Balance &gt;= :';
+//+mod by yp end			
+
+]]></add>
+		</operation>
+	</file>		
+
+	<file name="admin/language/*/sale/affiliate.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+//+mod by yp start
+$_['text_level'] = 'Level';
+$_['text_default'] = '<small>(Default)</small>';
+$_['option_default'] = 'Default';
+$_['text_none'] = 'None';
+$_['text_select_affiliate'] = 'Select Affiliate';
+$_['text_set_none'] = 'Set to None';
+
+$_['oy_close'] = 'Close';
+$_['oy_title'] = 'Affiliates - Click to Select';
+$_['oy_loading'] = 'Loading data from server ...';
+$_['oy_id'] = 'ID';
+$_['oy_name'] = 'Name';
+$_['oy_email'] = 'Email';
+$_['oy_scheme'] = 'Scheme';
+$_['oy_level'] = 'Level';
+$_['oy_balance'] = 'Balance';
+$_['oy_date_added'] = 'Date Added';
+
+$_['column_scheme'] = 'Scheme';
+
+$_['entry_commission']          = 'Commission (%):<span class="help">Percentage the affiliate recieves on each order. <strong> Ignored</strong> when using Multi Tier system.</span>';
+
+$_['entry_scheme'] = 'Multi Tier Scheme:';
+$_['entry_parent'] = 'Parent Affiliate:';
+
+$_['error_database']            = 'Database Error!';
+//+mod by yp end
+
+]]></add>
+		</operation>
+	</file>		
+	
+	<file name="admin/language/*/sale/order.php">
+		<operation error="log">
+			<search position="before"><![CDATA[?>]]></search>
+			<add><![CDATA[
+
+//+mod by yp start
+$_['text_affiliates']                         = 'Affiliates:';
+$_['text_affiliates_edit_in_view']            = '<small>Please use affiliate transactions instead!</small>';
+$_['column_affiliate']                        = 'Affiliate';
+$_['column_product_name']                     = 'Product';
+$_['column_product_commission']               = 'Product Commission';
+$_['column_scheme']                           = 'Scheme';
+$_['column_total_commission']                 = 'Total Commission';
+//+mod by yp end
+
+]]></add>
+		</operation>
+	</file>		
+
+<!-- end LANGUAGE -->
+
+	<file name="system/library/cart.php">
+		<operation>
+			<search position="after" index="1"><![CDATA[class Cart]]></search>
+			<add><![CDATA[
+
+			public $aff_info = array('products' => array());//+mod by yp
+
+			]]></add>
+		</operation>		
+		<operation>
+			<search position="before" index="1"><![CDATA[$this->session->data['cart'] as $key =]]></search>
+			<add><![CDATA[
+
+$this->aff_info = array('products' => array(), 'price_before_shipping' => 0.00);//+mod by yp			
+
+			]]></add>
+		</operation>		
+		<operation>
+			<search position="after" index="1"><![CDATA[$product_id = $product[0];]]></search>
+			<add><![CDATA[
+
+$this->aff_info['products'][strval($product_id)] = array('mods' => array());//+mod by yp
+
+			]]></add>
+		</operation>
+		<operation>
+			<search position="replace" index="1"><![CDATA[SELECT price FROM " . DB_PREFIX . "product_discount]]></search>
+			<add><![CDATA[SELECT product_discount_id, price FROM " . DB_PREFIX . "product_discount]]></add>
+		</operation>			
+		<operation>
+			<search position="replace" index="1"><![CDATA[SELECT price FROM " . DB_PREFIX . "product_special]]></search>
+			<add><![CDATA[SELECT product_special_id, price FROM " . DB_PREFIX . "product_special]]></add>
+		</operation>	
+		<operation>
+			<search position="after" index="1"><![CDATA[$product_discount_query->num_rows]]></search>
+			<add><![CDATA[
+			
+$this->aff_info['products'][$product_id]['mods']['discount'] = $product_discount_query->row['product_discount_id'];//+mod by yp
+			
+			]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[$product_special_query->num_rows]]></search>
+			<add><![CDATA[
+			
+$this->aff_info['products'][$product_id]['mods']['special'] = $product_special_query->row['product_special_id'];//+mod by yp
+			
+			]]></add>
+		</operation>
+		<operation>
+			<search position="before" offset="1" index="1"><![CDATA[$this->remove($key)]]></search>
+			<add><![CDATA[
+			
+$this->aff_info['price_before_shipping'] += floatval($this->data[$key]['total']);//+mod by yp
+			
+			]]></add>
+		</operation>	
+		<operation>
+			<search position="before" offset="2"><![CDATA[return $this->data;]]></search>
+			<add><![CDATA[
+			
+			//+mod by yp start
+    	foreach($this->data as $k => $v) {			
+			if(!isset($this->aff_info['products'][$v['product_id']])) {
+				$this->aff_info['products'][$v['product_id']] = array('share' => 0, 'quantity' => 0);
+			} else {
+				if(!isset($this->aff_info['products'][$v['product_id']]['share'])) $this->aff_info['products'][$v['product_id']]['share'] = 0;
+				if(!isset($this->aff_info['products'][$v['product_id']]['quantity'])) $this->aff_info['products'][$v['product_id']]['quantity'] = 0;					
+			}
+    		$this->aff_info['products'][$v['product_id']]['share'] += ($this->aff_info['price_before_shipping'] > 0.00 ? ((floatval($v['total'])) / $this->aff_info['price_before_shipping']) : 0);
+			$this->aff_info['products'][$v['product_id']]['quantity'] += $v['quantity'];				
+    	}
+			//+mod by yp end
+			
+			]]></add>
+		</operation>		
+
+		
+	</file>	
+
+	<file name="catalog/model/total/coupon.php">
+		<operation>
+			<search position="before" trim="false" index="1"><![CDATA[$discount_total = 0;]]></search>
+			<add><![CDATA[
+
+$product_ids = array();//+mod by yp
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[$sub_total += $product['total'];]]></search>
+			<add><![CDATA[
+				
+$product_ids[] = $product['product_id'];//+mod by yp
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[$total_data[] =]]></search>
+			<add><![CDATA[
+				
+					'product_ids' => $product_ids, //+mod by yp
+					'coupon_id'  => $coupon_info['coupon_id'], //+mod by yp	
+
+
+
+]]></add>
+		</operation>
+	</file>	
+	
+	<file name="catalog/controller/checkout/confirm.php">
+		<operation>
+			<search position="before" trim="false" index="1"><![CDATA[this->cart->hasShipping]]></search>
+			<add><![CDATA[
+
+		//+mod by yp start		
+		$aff_id = false;		
+		if ($this->customer->isLogged() && !$this->config->get('mta_ypx_no_aff_in_cust_acc') && (!defined('MTA_YPX_NO_AFF_IN_CUST_ACC') || !MTA_YPX_NO_AFF_IN_CUST_ACC)) {
+			$this->load->model('affiliate/mta_affiliate');
+			$aff_id = $this->model_affiliate_mta_affiliate->getCustomerAffiliateId($this->customer->getId(), 'active_only');
+			if($aff_id) {
+				$this->load->model('affiliate/affiliate');
+				$affiliate_info = $this->model_affiliate_affiliate->getAffiliate($aff_id);
+				if ($affiliate_info) {
+					setcookie('tracking', $affiliate_info['code'], time() + 3600 * 24 * 1000, '/');	
+				} else {
+					$aff_id = false;
+				}
+			}
+		}	
+		
+		if (!$aff_id && isset($this->request->cookie['tracking'])) {
+			$this->load->model('affiliate/affiliate');
+				
+			$affiliate_info = $this->model_affiliate_affiliate->getAffiliateByCode($this->request->cookie['tracking']);
+				
+			if ($affiliate_info) {
+				$aff_id = $affiliate_info['affiliate_id']; 			
+				$this->load->model('affiliate/mta_affiliate');
+				if(!$this->model_affiliate_mta_affiliate->check_aff_active($aff_id)) {
+					$aff_id = false;
+				} else {
+					if($this->customer->isLogged()) $this->model_affiliate_mta_affiliate->setCustomerAffiliateId($this->customer->getId(), $aff_id);					
+				}
+			}
+		}	
+		//+mod by yp end			
+		
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" trim="false"><![CDATA[cart->getTaxes(]]></search>
+			<add><![CDATA[
+				
+if($aff_id) $aff_info = $this->cart->aff_info;//+mod by yp
+
+]]></add>
+		</operation>		
+		<operation>
+			<search position="after" trim="false" index="1"><![CDATA[array_multisort($sort_order, SORT_ASC, $results);]]></search>
+			<add><![CDATA[
+				
+			//+mod by yp start
+			if($aff_id) {
+				$after_shipping_codes = array('handling', 'low_order_fee', 'shipping', 'tax');
+				$aff_shipping = 0;
+			}
+			//+mod by yp end		
+
+]]></add>
+		</operation>			
+		<operation>
+			<search position="after" trim="false"><![CDATA[$this->{'model_total_' . $result['code']}->getTotal(]]></search>
+			<add><![CDATA[
+
+					//+mod by yp start
+					$total_data_last = sizeof($total_data) - 1;
+					if($result['code'] == 'coupon' && isset($total_data[$total_data_last]) && $total_data[$total_data_last] && $total_data[$total_data_last]['code'] == 'coupon' && isset($total_data[$total_data_last]['product_ids'])) {
+						$_coupon_product_ids = $total_data[$total_data_last]['product_ids'];
+						$_coupon_id = $total_data[$total_data_last]['coupon_id'];
+						unset($total_data[$total_data_last]['product_ids']);
+						if($aff_id && $total_data[$total_data_last]['value'] < 0) {
+							if(!sizeof($_coupon_product_ids)) $_coupon_product_ids = array_keys($aff_info['products']);
+							foreach($_coupon_product_ids as $_cpid) {
+								if(!is_string($_cpid)) $_cpid = strval($_cpid);
+								if(isset($aff_info['products'][$_cpid])) $aff_info['products'][$_cpid]['mods']['coupon'] = $_coupon_id;
+							}
+						}
+					}
+					
+					if($aff_id) {
+						$aff_info['price'] = $total;
+						if(($this->config->get('mta_ypx_no_shipping') && $result['code'] != 'sub_total' && $result['code'] != 'total') || in_array($result['code'], $after_shipping_codes)) {
+							for($_shi = $total_data_last; $_shi >= 0; $_shi--) {
+								if($total_data[$_shi]['code'] != $result['code']) break;
+								if($total_data[$_shi]['value'] > 0) $aff_shipping += $total_data[$_shi]['value'];
+							}
+						}						
+					}					
+					//+mod by yp end
+
+]]></add>
+		</operation>	
+		<operation>
+			<search position="before" trim="false" index="2"><![CDATA[$sort_order = array();]]></search>
+			<add><![CDATA[
+				
+if($aff_id) $aff_info['price_before_shipping'] = $this->config->get('mta_ypx_no_shipping') && $this->config->get('mta_ypx_no_shipping') == 'subtotal' ? $this->cart->getSubTotal() : $aff_info['price'] - $aff_shipping;//+mod by yp
+
+]]></add>
+		</operation>		
+
+		<operation>
+			<search position="after" trim="false"><![CDATA[$data['total'] = $total]]></search>
+			<add><![CDATA[
+
+			//+mod by yp start
+			$data['affiliate_id'] = 0;
+			$data['commission'] = 0;
+			if($aff_id) {
+				$aff_data = $this->model_affiliate_mta_affiliate->prepareCommissions($aff_id, $aff_info);
+				if(!$aff_data) {
+					$aff_id = false;
+				} else if(isset($aff_data['order'][0]['affiliate_id']) && $aff_data['order'][0]['commission'] > 0) {
+					$data['affiliate_id'] = $aff_data['order'][0]['affiliate_id'];
+					$data['commission'] = $aff_data['order'][0]['commission'];					
+				}
+			}
+			/*  //+mod by yp end			
+			
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" trim="false"><![CDATA[$data['language_id'] = $this->config->get('config_language_id');]]></search>
+			<add><![CDATA[
+				
+*/ //+mod by yp
+
+]]></add>
+		</operation>
+		
+		
+		<operation>
+			<search position="after" trim="false"><![CDATA[order->addOrder]]></search>
+			<add><![CDATA[
+				
+if($aff_id) $this->model_affiliate_mta_affiliate->createOrder($this->session->data['order_id'], $aff_data);//+mod by yp			
+
+
+
+]]></add>
+		</operation>		
+	</file>
+
+	<file name="admin/view/template/catalog/product_form.tpl">
+		<operation error="log">
+			<search position="replace"><![CDATA[<a href="#tab-design"><?php echo $tab_design; ?></a></div>]]></search>
+			<add><![CDATA[<a href="#tab-design"><?php echo $tab_design; ?></a><?php if($do_edit) {?><a href="#tab-scheme"><?php echo $tab_scheme; ?></a><?php }?></div>]]></add>
+		</operation>
+		<operation error="log">
+			<search position="after"><![CDATA[$entry_date_end]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+                <td class="left"><?php echo $tab_scheme;?>:</td>
+<?php }?>	
+]]></add>
+		</operation>	
+		<operation error="log">
+			<search position="before"><![CDATA[<select name="product_discount[<?php echo $discount_row; ?>][customer_group_id]">]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?><input type="hidden" name="product_discount[<?php echo $discount_row; ?>][product_discount_id]" value="<?php echo $product_discount['product_discount_id'];?>" /><?php }?>
+
+]]></add>
+		</operation>		
+
+		<operation error="log">
+			<search position="after"><![CDATA[php echo $product_discount['date_end']; ?>" class="date"]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>              
+        				<td class="left">
+        					<div style="padding:5px;">
+        						<select name="product_discount[<?php echo $discount_row; ?>][scheme_id]">
+										<?php foreach($schemes0 as $_sid => $_sname) {?>
+											<option value="<?php echo $_sid;?>"<?php if($_sid == $product_discount['scheme_id']) {?> selected="selected"<?php }?>><?php echo $_sname;?></option>
+										<?php }?>
+										</select>
+									</div>
+									<?php if(isset($product_discount['product_discount_id']) && $product_discount['product_discount_id']) {?>
+				        	<div style="padding:5px;"><a id="product_discount_<?php echo $product_discount['product_discount_id'];?>_affiliates_link" href="javascript:;"><?php echo $text_aff_schemes;?></a>
+        					<?php foreach($schemes as $_sid => $_sname) {?>
+        						<input type="hidden" id="product_discount_<?php echo $product_discount['product_discount_id'];?>_affiliates_<?php echo $_sid;?>" name="_product_discount_affiliates[<?php echo $discount_row; ?>][<?php echo $_sid;?>]" value="" />
+        					<?php }?>
+        					</div>								
+        					<?php }?>
+                </td>                 
+<?php }?>
+
+]]></add>
+		</operation>		
+		<operation error="log">
+			<search position="before"><![CDATA[<select name="product_special[<?php echo $special_row; ?>][customer_group_id]">]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?><input type="hidden" name="product_special[<?php echo $special_row; ?>][product_special_id]" value="<?php echo $product_special['product_special_id'];?>" /><?php }?>
+
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="after"><![CDATA[php echo $product_special['date_end']; ?>" class="date"]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+        				<td class="left">
+        					<div style="padding:5px;">
+        						<select name="product_special[<?php echo $special_row; ?>][scheme_id]">
+										<?php foreach($schemes0 as $_sid => $_sname) {?>
+											<option value="<?php echo $_sid;?>"<?php if($_sid == $product_special['scheme_id']) {?> selected="selected"<?php }?>><?php echo $_sname;?></option>
+										<?php }?>
+										</select>
+									</div>
+									<?php if(isset($product_special['product_special_id']) && $product_special['product_special_id']) {?>
+				        	<div style="padding:5px;"><a id="product_special_<?php echo $product_special['product_special_id'];?>_affiliates_link" href="javascript:;"><?php echo $text_aff_schemes;?></a>
+        					<?php foreach($schemes as $_sid => $_sname) {?>
+        						<input type="hidden" id="product_special_<?php echo $product_special['product_special_id'];?>_affiliates_<?php echo $_sid;?>" name="_product_special_affiliates[<?php echo $special_row; ?>][<?php echo $_sid;?>]" value="" />
+        					<?php }?>
+        					</div>								
+        					<?php }?>
+                </td>                 
+<?php }?>
+
+]]></add>
+		</operation>			
+		<operation error="log">
+			<search position="before"><![CDATA[</form>]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+        <div id="tab-scheme">
+					<table class="form">
+        		<tr>
+        			<td><h4><?php echo $entry_product;?></h4></td>
+        			<td>
+								<select name="product_scheme_id">
+								<?php foreach($schemes0 as $_sid => $_sname) {?>
+									<option value="<?php echo $_sid;?>"<?php if($_sid == $product_scheme_id) {?> selected="selected"<?php }?>><?php echo $_sname;?></option>
+								<?php }?>
+								</select>
+							</td>        	
+            </tr>
+        	</table>
+        	<div style="padding:5px;"><a id="product_affiliates_link" href="javascript:;"><?php echo $text_aff_schemes;?></a>
+        		<?php foreach($schemes as $_sid => $_sname) {?>
+        		<input type="hidden" id="product_affiliates_<?php echo $_sid;?>" name="_product_affiliates[<?php echo $_sid;?>]" value="" />
+        		<?php }?>
+        	</div>
+					<table class="form">
+        		<tr>
+        			<td><h4><?php echo $entry_coupons;?></h4></td>
+            </tr>
+        	</table>
+        	<table class="list">
+        		<thead>
+        			<tr>
+        				<td class="right"><?php echo $column_coupon;?></td>
+        				<td class="left"><?php echo $column_mta_scheme;?></td>
+        			</tr>
+        		</thead>
+        		<tbody>
+        		<?php foreach($coupons as $coupon) {?>
+        			<tr>
+        				<td class="right"><?php echo $coupon['description'];?></td>
+        				<td class="left">
+        					<div style="padding:5px;">
+        						<select name="product_coupon_scheme_id[<?php echo $coupon['id'];?>]">
+										<?php foreach($schemes0 as $_sid => $_sname) {?>
+											<option value="<?php echo $_sid;?>"<?php if($_sid == $coupon['scheme_id']) {?> selected="selected"<?php }?>><?php echo $_sname;?></option>
+										<?php }?>
+										</select>
+									</div>
+				        	<div style="padding:5px;"><a id="product_coupon_<?php echo $coupon['id'];?>_affiliates_link" href="javascript:;"><?php echo $text_aff_schemes;?></a>
+        					<?php foreach($schemes as $_sid => $_sname) {?>
+        						<input type="hidden" id="product_coupon_<?php echo $coupon['id'];?>_affiliates_<?php echo $_sid;?>" name="_product_coupon_affiliates[<?php echo $coupon['id'];?>][<?php echo $_sid;?>]" value="" />
+        					<?php }?>
+        					</div>								
+        				</td>
+        		<?php }?>
+        		</tbody>
+        	</table>
+		</div>
+<?php }?>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="before"><![CDATA[ckeditor.js]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+<div style="background-color:#efefef;border:2px solid #ababab;z-index:99999999;display:none;" id="affiliate_dt_overlay_div"><div style="text-align:right;padding-right:5px;"><a class="overlay_close"><?php echo $oy_close;?></a><div style="text-align:center;font-weight:bold;"><?php echo $oy_title;?><hr /></div><div style="height:400px;width:850px;overflow-y:auto;margin:3px;padding:5px;">
+<table cellpadding="0" cellspacing="0" border="0" id="affiliate_dt" style="width:95%">
+	<thead>
+		<tr>
+			<th width="5%"><?php echo $oy_id;?></th>
+			<th width="20%"><?php echo $oy_name;?></th>
+			<th width="20%"><?php echo $oy_email;?></th>
+			<th width="20%"><?php echo $oy_scheme;?></th>
+			<th width="5%"><?php echo $oy_level;?></th>
+			<th width="10%"><?php echo $oy_balance;?></th>			
+			<th width="20%"><?php echo $oy_date_added;?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="7" class="dataTables_empty"><?php echo $oy_loading;?></td>
+
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<th><?php echo $oy_id;?></th>
+			<th><?php echo $oy_name;?></th>
+			<th><?php echo $oy_email;?></th>
+			<th><?php echo $oy_scheme;?></th>
+			<th><?php echo $oy_level;?></th>
+			<th><?php echo $oy_balance;?></th>			
+			<th><?php echo $oy_date_added;?></th>
+		</tr>
+	</tfoot>
+</table>
+</div>
+<div style="text-align:center;"><hr /><input type="button" id="affiliate_dt_save_button" value="" /></div>
+<div style="text-align:right;padding-right:5px;"><a class="overlay_close"><?php echo $oy_close;?></a></div>
+</div>
+<?php }?>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="after"><![CDATA[discount_row + '][date_end]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+	html += '<td class="left"><div style="padding:5px;"><select name="product_discount[' + discount_row + '][scheme_id]">';
+<?php foreach($schemes0 as $_sid => $_sname) {?>
+	html +='<option value="<?php echo $_sid;?>"><?php echo mta_jsstr($_sname);?></option>';
+<?php }?>
+	html +='</select></div></td>';
+<?php }?>
+
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="after"><![CDATA[special_row + '][date_end]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+	html += '<td class="left"><div style="padding:5px;"><select name="product_special[' + special_row + '][scheme_id]">';
+<?php foreach($schemes0 as $_sid => $_sname) {?>
+	html +='<option value="<?php echo $_sid;?>"><?php echo mta_jsstr($_sname);?></option>';
+<?php }?>
+	html +='</select></div></td>';	
+<?php }?>
+
+
+
+]]></add>
+		</operation>		
+		<operation error="log">
+			<search position="before"><![CDATA[$footer]]></search>
+			<add><![CDATA[
+<?php if($do_edit) {?>
+<script type="text/javascript" src="view/javascript/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="view/javascript/jquery.tools.min.js"></script>
+
+<script type="text/javascript"><!--
+	
+	$(document).ready(function() {
+		var _loaded = {};
+		var _loading = false;
+		var _ovl_params = {
+      mask: {
+      	color: '#efefef',
+        loadSpeed: 250,
+        zIndex: '999999959',
+      	opacity: 0.9
+      },
+      closeOnClick: false
+    }
+    
+	$.fn._make_aff_table = function() {
+		return this.each(function() {
+		var pfx = $(this).attr('id').replace(/_link$/, '');
+		var _str = '<?php 
+		
+		$_str = '<table class="list" id="^^^+pfx+^^^_table" style="display:none;width:50%;"> 
+						<thead> 
+							<td class="right">' . $column_mta_scheme . '</td> 
+							<td class="left">' . $column_affiliates . '</td>							
+						</thead> 
+						<tbody>'; 
+		foreach($schemes as $_sid => $_sname) {
+			$_str .= '
+							<tr>
+								<td class="right">' . $_sname . '
+								</td>
+								<td class="left">
+									<div>
+										<span id="^^^+pfx+^^^_total_' . $_sid . '" style="font-weight:bold;">0</span> 										<a id="^^^+pfx+^^^_edit_' . $_sid . '" href="javascript:;" style="display:none;" rel="#affiliate_dt_overlay_div">' . $text_edit . '</a>
+									</div>
+									<div>
+										<a id="^^^+pfx+^^^_add_' . $_sid . '" href="javascript:;" rel="#affiliate_dt_overlay_div">' . $text_add . '</a>																
+									</div>
+								</td>
+							</tr>';
+		}
+		$_str .= '</tbody>
+					</table>';
+		$_str = mta_esqq(str_replace(array("\r", "\n"), array('', ''), $_str));
+		$_str = str_replace('^^^', "'", $_str);
+		echo $_str;
+		?>';
+		$(this).parent().after(_str);
+		});
+	}    
+
+		var _dataTable = function(filter_ids, input_sel, total_sel, pfx, _this) {
+			var _ids = $(input_sel).val();
+			if(filter_ids == 'exclude') {
+				var _all_ids = [];
+				$('input[id^="'+pfx+'_"]').each(function() {
+					if($(this).val().length > 0) _all_ids.push($(this).val());
+				});
+				_all_ids = _all_ids.join(',');
+			} else {
+				var _all_ids = _ids;
+			}
+			//console.log('input: '+input_sel);//-tmp
+			//console.log('total: '+total_sel);//-tmp
+			
+    	$('#affiliate_dt').dataTable({
+    		'bDestroy' : true,
+        'bProcessing': true,
+        'bServerSide': true,
+        'sAjaxSource': document.location.href.replace(/catalog\/product(?:\/\w*)/, 'sale/mta_affiliate_dt'),
+        'sServerMethod' : 'POST',
+        'sPaginationType' : 'full_numbers',
+        'iDisplayLength' : 25,
+        'aoColumns': [
+        		{ 'mDataProp': 'id', 'bSearchable' : false, 'bSortable' : false },
+            { 'mDataProp': 'name' },
+            { 'mDataProp': 'email' },
+            { 'mDataProp': 'scheme', 'bSearchable' : false, 'bSortable' : false },            
+            { 'mDataProp': 'level', 'bSearchable' : false},
+            { 'mDataProp': 'balance', 'bSearchable' : false, 'bSortable' : false},
+            { 'mDataProp': 'date_added', 'bSearchable' : false  }
+        ],
+
+    			'fnServerParams': function (aoData) {
+      			aoData.push({'name' : 'filter_ids', 'value' : filter_ids});
+      			aoData.push({'name' : 'ids', 'value' : _all_ids});
+    			},
+    			
+      	  'fnDrawCallback': function() { 
+      	  	$('.affiliate_dt_row').each(function() {  
+      	  		var _chbv = $(this).find('td:first').text();
+            	$($(this).find('td:first')).prepend('<input type="checkbox" value="'+_chbv+'" />');
+            });
+						$('.overlay_close').click(function() {
+							$(_this).overlay().close();					
+						});            
+            $('#affiliate_dt_save_button').click(function () {
+            	var _ids_ar = _ids.length > 0 ? _ids.split(',') : [];
+            	var _preselected_ids = [];
+            	var _selected_ids = [];
+            	$('.affiliate_dt_row :checked').each(function() {
+            		_preselected_ids.push($(this).val());
+            	});							
+            	//console.log('pre ids: '+_preselected_ids);//-tmp
+            	if(filter_ids == 'include') {
+        				for(var _i = 0; _i < _ids_ar.length; _i++) {
+        					if($.inArray(_ids_ar[_i], _preselected_ids) == -1) _selected_ids.push(_ids_ar[_i]);
+        				}
+            	} else {
+            		_selected_ids = _ids_ar;
+        				for(var _i = 0; _i < _preselected_ids.length; _i++) {
+        					if($.inArray(_preselected_ids[_i], _ids_ar) == -1) _selected_ids.push(_preselected_ids[_i]);
+        				}            		
+            	}            	            	
+							$(total_sel).text(_selected_ids.length);
+							var _scheme_id = $(_this).attr('id').match(/\d+$/)[0];
+							//console.log('scheme id: '+_scheme_id);//-tmp
+							//console.log('sel ids: '+_selected_ids);//-tmp
+							if(_selected_ids.length > 0) {
+								$('#'+pfx+'_edit_'+_scheme_id).show();								
+							} else {
+								$('#'+pfx+'_edit_'+_scheme_id).hide();								
+							}
+							$(input_sel).val(_selected_ids.join(','));
+              $(_this).overlay().close();              
+            });
+        	}        
+    	});
+    }
+		
+		$('a[id$="_affiliates_link"]')._make_aff_table();
+		$('a[id$="_affiliates_link"]').click(function() {
+			if(_loading) return;
+			_loading = true;
+			var pfx = $(this).attr('id').replace(/_link$/, '');
+			$('input[id^="'+pfx+'_"]').each(function() {
+				$(this).attr('name', $(this).attr('name').replace(/^_/, ''));
+			})
+			if(_loaded[pfx]) {
+				$('#'+pfx+'_table').toggle();
+				_loading = false;
+				return;
+			}
+			var _pfxar = pfx.split('_');
+			if(_pfxar.length == 2) {
+				var _pmt = '';
+				var _pmid = 0;
+			} else {
+				var _pmt = _pfxar[1];
+				var _pmid = _pfxar[2];
+			}
+			var _loc = document.location.href.replace('/product/update', '/product/get_affiliates');
+			if(_pmt != '') _loc += '&mod_type='+_pmt;
+			if(_pmid) _loc += '&mod_id='+_pmid;
+			
+			$.getJSON(_loc, function(r) {
+				for(var _scheme_id in r) {
+					$('#'+pfx+'_'+_scheme_id).val(r[_scheme_id].join(','));					
+					$('#'+pfx+'_total_'+_scheme_id).text(r[_scheme_id].length);
+					$('#'+pfx+'_edit_'+_scheme_id).show();
+				}
+				$('a[id^="'+pfx+'_edit_"]').overlay(_ovl_params);
+				$('a[id^="'+pfx+'_edit_"]').click(function() {					
+					$('.overlay_close').unbind();
+					$('#affiliate_dt_save_button').unbind();
+					var _this = this;					
+					var _scheme_id = $(this).attr('id').match(/\d+$/)[0];
+					$('#affiliate_dt_save_button').val('<?php echo mta_jsstr($button_remove_selected);?>');
+					_dataTable('include', '#'+pfx+'_'+_scheme_id, '#'+pfx+'_total_'+_scheme_id, pfx, _this);					
+				});
+				
+				$('a[id^="'+pfx+'_add_"]').overlay(_ovl_params);
+				$('a[id^="'+pfx+'_add_"]').click(function() {
+					$('.overlay_close').unbind();
+					$('#affiliate_dt_save_button').unbind();
+					var _this = this;
+					var _scheme_id = $(this).attr('id').match(/\d+$/)[0];
+					$('#affiliate_dt_save_button').val('<?php echo mta_jsstr($button_add_selected);?>');
+					_dataTable('exclude', '#'+pfx+'_'+_scheme_id, '#'+pfx+'_total_'+_scheme_id, pfx, _this);
+				});
+				_loaded[pfx] = true;
+				$('#'+pfx+'_table').toggle();				
+				_loading = false;
+			});
+		});			
+});	
+
+//--></script>
+<?php }?>
+
+]]></add>
+		</operation>
+
+	</file>	
+	
+	<file name="admin/view/template/catalog/product_list.tpl">	
+		<operation error="log">
+			<search position="before" index="1"><![CDATA[$sort == 'p.quantity']]></search>
+			<add><![CDATA[
+<td class="right"><?php echo $column_mta_scheme;?></td>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="before" index="1"><![CDATA[input type="text" name="filter_quantity"]]></search>
+			<add><![CDATA[
+<td>&nbsp;</td>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="before" index="1"><![CDATA[if ($product['quantity'] <= 0]]></search>
+			<add><![CDATA[
+							<td class="left">
+								<?php echo $product['mta_scheme'];?><br />
+								<?php if($product['mta_scheme_total']) {?>
+								<a class="mta_schemes"><?php echo  $entry_mta_schemes;?> (<?php echo $product['mta_scheme_total'];?>)</a>
+								<a class="mta_schemes_hide" style="display:none;"><?php echo $text_hide;?></a>
+								<div class="mta_schemes_div" style="display:none;">
+								<?php foreach($mta_scheme_types as $_k => $_v) {
+										if($product['mta_scheme_count'][$_k]) {										
+										echo $mta_scheme_types_lng[$_k];?> :  <strong><?php echo $product['mta_scheme_count'][$_k];?></strong><br />										
+										<?php }
+										}?>									
+								</div>
+								<br />
+							<?php }?>
+							</td>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="before" index="1"><![CDATA[$footer]]></search>
+			<add><![CDATA[
+<script type="text/javascript"><!--
+	$(document).ready(function() {
+	
+	$('.mta_schemes').click(function() {
+		$(this).parent().find('.mta_schemes_div').show();
+		$(this).hide();
+		$(this).parent().find('.mta_schemes_hide').show();		
+	});
+
+	$('.mta_schemes_hide').click(function() {
+		$(this).parent().find('.mta_schemes_div').hide();
+		$(this).hide();
+		$(this).parent().find('.mta_schemes').show();		
+	});
+
+
+		
+});
+//--></script>
+]]></add>
+		</operation>
+	
+	</file>
+
+	<file name="admin/controller/catalog/product.php">
+		<operation>
+			<search position="after" trim="false" ><![CDATA[$error = array]]></search>
+			<add><![CDATA[
+//+mod by yp start
+	private $_coupons = false;
+
+
+private function _count_product_scheme_usage($product_id) {		
+		return array_merge($this->model_mta_mta_product_affiliate->countProductUsage($product_id, 'product_affiliate'), $this->model_mta_mta_product_affiliate->countProductUsage($product_id));
+}
+
+		public function get_affiliates() {
+			$this->load->model('mta/mta_product_affiliate');
+			$product_id = $this->request->request['product_id'];
+			if($product_id && mta_check_int($product_id)) {
+  			$mod_type = isset($this->request->request['mod_type']) && in_array($this->request->request['mod_type'], array('coupon', 'discount', 'special')) ? $this->request->request['mod_type'] : '';
+  			if(isset($this->request->request['mod_id']) && preg_match("/^new/", $this->request->request['mod_id'])) {
+  				$this->response->setOutput(json_encode(array()));			
+  				return;
+  			}
+  			$mod_id = isset($this->request->request['mod_id']) && mta_check_int($this->request->request['mod_id']) ? $this->request->request['mod_id'] : 0;
+  			$ret = $this->model_mta_mta_product_affiliate->getProductAffiliates($product_id, $mod_type, $mod_id);
+			} else {
+				$ret = '0';
+			}
+			$this->response->setOutput(json_encode($ret));			
+		}
+//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="2"><![CDATA[if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		$this->document->addStyle('view/stylesheet/jquery.dataTables.css');
+		$this->load->model('mta/mta_product');
+		$this->load->model('mta/mta_product_affiliate');
+		
+		$this->data['schemes'] = $this->_get_schemes();	
+		$this->data['schemes0'] = array('0' => $this->language->get('text_default'));
+		foreach($this->data['schemes'] as $_k => $_v) {
+			$this->data['schemes0'][strval($_k)] = $_v;
+		}		
+		//+mod by yp end			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$product_total = $this->model_catalog_product->getTotalProducts($data);]]></search>
+			<add><![CDATA[
+			//+mod by yp start
+			$this->data['column_mta_scheme'] = $this->language->get('column_mta_scheme');
+			$this->data['text_edit_mta_schemes'] = $this->language->get('text_edit_mta_schemes');
+			$this->data['entry_mta_schemes'] = $this->language->get('entry_mta_schemes');			
+			$this->data['text_hide'] = $this->language->get('text_hide');	
+
+		$this->data['mta_scheme_types'] = array(			
+			'product' => 'p',			
+			'product_discount' => 'p_d',
+			'product_special' => 'p_s',
+			'product_coupon' => 'p_c',
+			'product_affiliate' => 'pa',
+			'product_affiliate_discount' => 'pa_d',
+			'product_affiliate_special' => 'pa_s',
+			'product_affiliate_coupon' => 'pa_c'	
+		);
+		$this->data['mta_scheme_types_lng'] = array();
+		$_trans = array();
+		foreach($this->data['mta_scheme_types'] as $_k => $_v) {
+			$_kAr = explode('_', $_k);
+			$_kAr2 = array();
+			foreach($_kAr as $_k2) {
+				if(!isset($_trans[$_k2])) $_trans[$_k2] = $this->language->get('word_' . $_k2);
+				$_kAr2[] = ucfirst($_trans[$_k2]);
+			}
+			$this->data['mta_scheme_types_lng'][$_k] = implode(' / ', $_kAr2);
+		}
+		$this->load->model('mta/mta_product_affiliate');
+		//+mod by yp end						
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['products'][] = array(]]></search>
+			<add><![CDATA[
+			//+mod by yp start			
+			$_s = $this->model_mta_mta_product_affiliate->getProductScheme($result['product_id']);
+			$_sc = $this->_count_product_scheme_usage($result['product_id']);
+			$_st = array_sum(array_values($_sc));
+			
+			foreach($this->data['mta_scheme_types'] as $_k => $_v) {
+				if(!isset($_sc[$_k])) $_sc[$_k] = 0;
+			}			
+			//+mod by yp end			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->data['products'][] = array(]]></search>
+			<add><![CDATA[
+      //+mod by yp start
+      'mta_scheme' => ($_s ? $_s['name'] : $this->language->get('text_default')),
+      'mta_scheme_count' => $_sc,
+			'mta_scheme_total' => $_st,
+			//+mod by yp end			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->data['tab_design'] = $this->language->get('tab_design');]]></search>
+			<add><![CDATA[
+//+mod by yp start
+$this->data['text_aff_schemes'] = $this->language->get('text_aff_schemes');
+$this->data['text_edit'] = $this->language->get('text_edit');			
+$this->data['text_add'] = $this->language->get('text_add');	
+$this->data['entry_product'] = $this->language->get('entry_product');	
+$this->data['entry_coupons'] = $this->language->get('entry_coupons');	
+$this->data['tab_scheme'] = $this->language->get('tab_scheme');	
+$this->data['column_affiliates'] = $this->language->get('column_affiliates');			
+$this->data['column_mta_scheme'] = $this->language->get('column_mta_scheme');			
+$this->data['button_add_selected'] = $this->language->get('button_add_selected');			
+$this->data['button_remove_selected'] = $this->language->get('button_remove_selected');
+$this->data['column_coupon'] = $this->language->get('column_coupon');
+			
+$this->data['oy_close'] = $this->language->get('oy_close');
+$this->data['oy_title'] = $this->language->get('oy_title');
+$this->data['oy_loading'] = $this->language->get('oy_loading');
+$this->data['oy_id'] = $this->language->get('oy_id');
+$this->data['oy_name'] = $this->language->get('oy_name');
+$this->data['oy_email'] = $this->language->get('oy_email');
+$this->data['oy_scheme'] = $this->language->get('oy_scheme');
+$this->data['oy_level'] = $this->language->get('oy_level');
+$this->data['oy_balance'] = $this->language->get('oy_balance');
+$this->data['oy_date_added'] = $this->language->get('oy_date_added');
+
+  		if(isset($this->request->get['product_id']) && (!mta_check_int($this->request->get['product_id']) || $this->request->get['product_id'] < 1)) unset($this->request->get['product_id']);
+  		$_do_edit = (isset($this->request->get['product_id'])); 		
+  		if($_do_edit) {
+  			$this->data['product_id'] = $product_id = $this->request->get['product_id'];
+				$_psch = $this->model_mta_mta_product->getProductScheme($product_id);
+				$this->data['product_scheme_id'] = $_psch && isset($_psch['id']) ? $_psch['id'] : 0;
+				$all_sub_schemes = $this->model_mta_mta_product->getAllProductSubSchemes($product_id);
+
+				$coupons =& $this->_get_coupons();
+				$this->data['coupons'] = array();
+				foreach($coupons as $_coupon) {
+					$this->data['coupons'][] = array(
+						'id' => $_coupon['coupon_id'],
+						'description' => ($_coupon['name'] . '<br />(%' . intval($_coupon['discount']) . ')<br />' . date('d/m/Y', strtotime($_coupon['date_start'])) . ' - ' . date('d/m/Y', strtotime($_coupon['date_end']))),
+						'scheme_id' => (isset($all_sub_schemes['coupon'][strval($_coupon['coupon_id'])]) ? $all_sub_schemes['coupon'][strval($_coupon['coupon_id'])] : '0')
+					);
+				}
+  			
+  		}
+  	//+mod by yp end
+			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->model_catalog_product->getProductDiscounts]]></search>
+			<add><![CDATA[
+			//+mod by yp start
+			foreach($this->data['product_discounts'] as $_did => $_d) {
+				$this->data['product_discounts'][$_did]['scheme_id'] = isset($all_sub_schemes['discount'][$_d['product_discount_id']]) && $all_sub_schemes['discount'][$_d['product_discount_id']] ? $all_sub_schemes['discount'][$_d['product_discount_id']] : '0';
+			}			
+			//+mod by yp end			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="2"><![CDATA[$this->model_catalog_product->getProductSpecials]]></search>
+			<add><![CDATA[
+			//+mod by yp start
+			foreach($this->data['product_specials'] as $_did => $_d) {
+				$this->data['product_specials'][$_did]['scheme_id'] = isset($all_sub_schemes['special'][$_d['product_special_id']]) && $all_sub_schemes['special'][$_d['product_special_id']] ? $all_sub_schemes['special'][$_d['product_special_id']] : '0';
+			}			
+			//+mod by yp end			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->data['layouts']]></search>
+			<add><![CDATA[
+		$this->data['do_edit'] = $_do_edit;//+mod by yp			
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[if ($this->error && !isset($this->error['warning'])) {]]></search>
+			<add><![CDATA[
+			//+mod by yp start
+			if(isset($this->request->request['product_id'])) {
+				$_schemes = $this->model_mta_mta_product->getSchemes(array('fields' => array('mta_scheme_id as id', 'commission_type')));
+				$schemes = array();			
+				foreach($_schemes as $_s) {				
+					if($_s['commission_type'] == 'fixed') $schemes[strval($_s['id'])] = $this->model_mta_mta_product->getMaxTotalCommission($_s['id']);
+				} 
+				if(sizeof($schemes) > 0) {					
+					$p =& $this->request->post;
+					
+					if(isset($p['product_scheme_id']) && isset($schemes[$p['product_scheme_id']]) && $p['price'] <= $schemes[$p['product_scheme_id']]) $this->error['warning'] = $this->language->get('error_commission_price');
+					if(!$this->error) {
+				 		foreach($schemes as $_id => $_max) {
+				 			if(false && isset($p['product_affiliates'][$_id]) && sizeof($p['product_affiliates'][$_id]) > 0 && $p['price'] <= $_max) {
+				 				$this->error['warning'] = $this->language->get('error_commission_price');
+				 				break;				 			
+				 			}
+				 		}				 	  	
+				 	}
+				 	if(!$this->error && isset($p['product_coupon_scheme_id'])) {
+				 		foreach($p['product_coupon_scheme_id'] as $_cid => $_sid) {
+				 			if($_sid && isset($schemes[$_sid]) && !$this->_check_coupons($schemes[$_sid], $p['price'], $_cid)) {
+			 					$this->error['warning'] = $this->language->get('error_commission_price');
+			 					break;
+				 			}
+				 		}				 		
+					}
+					if(!$this->error && isset($p['product_coupon_affiliates'])) {
+						foreach($p['product_coupon_affiliates'] as $_cid => $_sAr) {
+							foreach($_sAr as $_sid => $_affs) {
+								if($_affs && isset($schemes[$_sid]) && !$this->_check_coupons($schemes[$_sid], $p['price'], $_cid)) {
+				 					$this->error['warning'] = $this->language->get('error_commission_price');
+			 						break 2;								
+								}
+							}							
+						}					
+					}
+					if(!$this->error && isset($p['product_discount'])) {
+						foreach($p['product_discount'] as $_i => $_d) {
+							if(isset($_d['scheme_id']) && isset($schemes[$_d['scheme_id']]) && $schemes[$_d['scheme_id']] >= $_d['price']) {
+			 					$this->error['warning'] = $this->language->get('error_commission_price');
+			 					break;								
+							}							
+							if(isset($p['product_discount_affiliates'][$_i])) {
+								foreach($p['product_discount_affiliates'][$_i] as $_sid => $_affs) {
+									if($_affs && isset($schemes[$_sid]) &&  $schemes[$_sid] >= $_d['price']) {
+			 							$this->error['warning'] = $this->language->get('error_commission_price');
+			 							break 2;								
+									}
+								}
+							}
+						}
+					}
+
+					if(!$this->error && isset($p['product_special'])) {
+						foreach($p['product_special'] as $_i => $_d) {
+							if(isset($_d['scheme_id']) && isset($schemes[$_d['scheme_id']]) && $schemes[$_d['scheme_id']] >= $_d['price']) {
+			 					$this->error['warning'] = $this->language->get('error_commission_price');
+			 					break;								
+							}							
+							if(isset($p['product_special_affiliates'][$_i])) {
+								foreach($p['product_special_affiliates'][$_i] as $_sid => $_affs) {
+									if($_affs && isset($schemes[$_sid]) &&  $schemes[$_sid] >= $_d['price']) {
+			 							$this->error['warning'] = $this->language->get('error_commission_price');
+			 							break 2;								
+									}
+								}
+							}
+						}
+					}				
+				}
+			}
+			//+mod by yp end			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" offset="1"><![CDATA[$this->response->setOutput(json_encode($json));]]></search>
+			<add><![CDATA[
+	//+mod by yp start
+	private function _get_schemes() {				
+		$_s = $this->model_mta_mta_product->getSchemes(array('fields' => array('mta_scheme_id as id', 'scheme_name as n')));
+		$out = array();
+		foreach($_s as $_s2) {
+			$out[strval($_s2['id'])] = $_s2['n'];
+		}
+		return $out;
+	}	
+
+	private function _check_coupons($max_comm, $price, $coupon_id) {
+		$coupons =& $this->_get_coupons();
+		if(isset($coupons[$coupon_id]) && $max_comm >= ($price - ($price * 0.01 * floatval($coupons[$coupon_id]['discount'])))) return false;
+		return true;		
+	}
+	
+	private function &_get_coupons() {
+		if($this->_coupons === false) {
+			$this->load->model('sale/coupon');
+			$_coupons = $this->model_sale_coupon->getCoupons();
+			$this->_coupons = array();
+			foreach($_coupons as $_coupon) {
+				$this->_coupons[$_coupon['coupon_id']] = $_coupon;
+			}
+		}
+		return $this->_coupons;
+	}
+	//+mod by yp end			
+]]></add>
+		</operation>
+	</file>		
+	
+	<file name="admin/model/catalog/product.php">
+		<operation>
+			<search position="before" index="1"><![CDATA[$this->cache->delete('product');]]></search>
+			<add><![CDATA[
+
+		//+mod by yp start
+		$this->load->model('mta/mta_product');
+		$this->model_mta_mta_product->setDefaultsForNew($product_id);
+		if(isset($data['product_scheme_id']) && mta_check_int($data['product_scheme_id']) && $data['product_scheme_id'] > 0) $this->db->query("insert into " . DB_PREFIX . "mta_product set product_id='" . (int)$product_id . "', mta_scheme_id='" . (int) $data['product_scheme_id'] . "', price_mod_type='', price_mod_id='0' on duplicate key update mta_scheme_id='" . (int) $data['product_scheme_id'] . "'");
+		//+mod by yp end
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace" index="2" trim="false"><![CDATA[foreach ($data['product_discount'] as $product_discount) {]]></search>
+			<add><![CDATA[foreach ($data['product_discount'] as $_i => $product_discount) {//+mod by yp]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="2"><![CDATA[INSERT INTO " . DB_PREFIX . "product_discount]]></search>
+			<add><![CDATA[
+				//+mod by yp start
+				$_discount_id = $this->db->getLastId();
+				if($_discount_id) {
+					if(isset($product_discount['scheme_id']) && $product_discount['scheme_id']) $this->db->query("insert " . DB_PREFIX . "mta_product set product_id='" . (int)$product_id . "', mta_scheme_id='" . (int) $product_discount['scheme_id'] . "', price_mod_type='discount', price_mod_id='{$_discount_id}'");
+					if(isset($data['product_discount_affiliates'][$_i]) && is_array($data['product_discount_affiliates'][$_i]) && sizeof($data['product_discount_affiliates'][$_i]) > 0)  {
+						if(isset($product_discount['product_discount_id'])) $this->db->query("DELETE FROM " . DB_PREFIX . "mta_product_affiliate WHERE product_id = '" . (int)$product_id . "' and price_mod_type='discount' and price_mod_id='" . (int) $product_discount['product_discount_id'] . "'");				
+						$_insert = array();
+						foreach($data['product_discount_affiliates'][$_i] as $_scheme_id => $_affs) {
+							if(!$_affs) continue;
+							$_affs = explode(',', $_affs);							
+							foreach($_affs as $_aff) {
+								$_insert[] = "('" . (int)$product_id . "','" . (int) $_scheme_id . "','discount','{$_discount_id}','" . (int) $_aff . "')";
+							}
+						}
+						if(sizeof($_insert) > 0) $this->db->query("insert into " . DB_PREFIX . "mta_product_affiliate (product_id, mta_scheme_id,price_mod_type,price_mod_id,affiliate_id) values " . implode(',', $_insert));
+					} else {
+						if(isset($product_discount['product_discount_id'])) $this->db->query("update " . DB_PREFIX . "mta_product_affiliate set price_mod_id='{$_discount_id}' where product_id = '" . (int)$product_id . "' and price_mod_type='discount' and price_mod_id='" . (int) $product_discount['product_discount_id'] . "'");
+					}
+				}
+				//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="1"><![CDATA[DELETE FROM " . DB_PREFIX . "product_special]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		else {
+			$this->db->query("DELETE FROM " . DB_PREFIX . "mta_product_affiliate WHERE product_id = '" . (int)$product_id . "' and price_mod_type='discount'");		
+		} 			
+		//+mod by yp end		
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace" index="2" trim="false"><![CDATA[foreach ($data['product_special'] as $product_special) {]]></search>
+			<add><![CDATA[foreach ($data['product_special'] as $_i => $product_special) {//+mod by yp]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="2"><![CDATA[INSERT INTO " . DB_PREFIX . "product_special]]></search>
+			<add><![CDATA[
+				//+mod by yp  start
+				$_special_id = $this->db->getLastId();
+				if($_special_id) {
+					if(isset($product_special['scheme_id']) && $product_special['scheme_id']) $this->db->query("insert " . DB_PREFIX . "mta_product set product_id='" . (int)$product_id . "', mta_scheme_id='" . (int) $product_special['scheme_id'] . "', price_mod_type='special', price_mod_id='{$_special_id}'");
+					if(isset($data['product_special_affiliates'][$_i]) && is_array($data['product_special_affiliates'][$_i]) && sizeof($data['product_special_affiliates'][$_i]) > 0)  {
+						if(isset($product_special['product_special_id'])) $this->db->query("DELETE FROM " . DB_PREFIX . "mta_product_affiliate WHERE product_id = '" . (int)$product_id . "' and price_mod_type='special' and price_mod_id='" . (int) $product_special['product_special_id'] . "'");
+						$_insert = array();
+						foreach($data['product_special_affiliates'][$_i] as $_scheme_id => $_affs) {
+							if(!$_affs) continue;
+							$_affs = explode(',', $_affs);							
+							foreach($_affs as $_aff) {
+								$_insert[] = "('" . (int)$product_id . "','" . (int) $_scheme_id . "','special','{$_special_id}','" . (int) $_aff . "')";
+							}
+						}
+						if(sizeof($_insert) > 0) $this->db->query("insert into " . DB_PREFIX . "mta_product_affiliate (product_id, mta_scheme_id,price_mod_type,price_mod_id,affiliate_id) values " . implode(',', $_insert));
+					} else {
+						if(isset($product_special['product_special_id'])) $this->db->query("update " . DB_PREFIX . "mta_product_affiliate set price_mod_id='{$_special_id}' where product_id = '" . (int)$product_id . "' and price_mod_type='special' and price_mod_id='" . (int) $product_special['product_special_id'] . "'");
+					}
+				}
+				//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="1"><![CDATA[DELETE FROM " . DB_PREFIX . "product_image]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		else {
+			$this->db->query("DELETE FROM " . DB_PREFIX . "mta_product_affiliate WHERE product_id = '" . (int)$product_id . "' and price_mod_type='special'");		
+		}
+		//+mod by yp end
+]]></add>
+		</operation>
+
+		
+		<operation>
+			<search position="before" index="2"><![CDATA[$this->cache->delete('product');]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		//product
+		$this->db->query("delete from " . DB_PREFIX . "mta_product where product_id='" . (int)$product_id . "' and price_mod_type=''");
+		if($data['product_scheme_id']) $this->db->query("insert into " . DB_PREFIX . "mta_product set product_id='" . (int)$product_id . "', mta_scheme_id='" . (int) $data['product_scheme_id'] . "', price_mod_type=''");
+		
+		//product / affiliate
+		if(isset($data['product_affiliates']) && is_array($data['product_affiliates']) && sizeof($data['product_affiliates']) > 0) {
+			$this->db->query("delete from " . DB_PREFIX . "mta_product_affiliate where product_id='" . (int)$product_id . "' and price_mod_type=''");
+			$_insert = array();
+			foreach($data['product_affiliates'] as $_scheme_id => $_aff_ids) {				
+				if(!$_aff_ids) continue;
+				$_aff_ids = explode(',', $_aff_ids);
+				foreach($_aff_ids as $_aff_id) {
+					if(mta_check_int($_aff_id) && $_aff_id > 0) $_insert[] = "('" . (int) $product_id . "','" . (int) $_scheme_id . "','" . (int) $_aff_id . "')";
+				}				
+			}
+			if(sizeof($_insert) > 0) $this->db->query("insert into " . DB_PREFIX . "mta_product_affiliate (product_id, mta_scheme_id, affiliate_id) values " . implode(',', $_insert));			
+		}
+		
+		//coupons
+		if(isset($data['product_coupon_scheme_id'])) {
+			$this->db->query("delete from " . DB_PREFIX . "mta_product where product_id='" . (int)$product_id . "' and price_mod_type='coupon'");
+			$_insert = array();
+			foreach($data['product_coupon_scheme_id'] as $_coupon_id => $_scheme_id) {
+				if($_scheme_id) $_insert[] = "('" . (int) $product_id . "','" . (int) $_scheme_id . "','coupon','" . (int) $_coupon_id . "')";
+			}
+			if(sizeof($_insert) > 0) $this->db->query("insert into " . DB_PREFIX . "mta_product (product_id, mta_scheme_id, price_mod_type, price_mod_id) values " . implode(',', $_insert));			
+		}
+		//coupons / affiliate
+		if(isset($data['product_coupon_affiliates']) && is_array($data['product_coupon_affiliates']) && sizeof($data['product_coupon_affiliates']) > 0) {
+			$this->db->query("delete from " . DB_PREFIX . "mta_product_affiliate where product_id='" . (int)$product_id . "' and price_mod_type='coupon'");
+			$_insert = array();
+			foreach($data['product_coupon_affiliates'] as $_coupon_id => $_sAr) {				
+				foreach($_sAr as $_scheme_id => $_aff_ids) {				
+					if(!$_aff_ids) continue;
+					$_aff_ids = explode(',', $_aff_ids);
+					foreach($_aff_ids as $_aff_id) {
+						if(mta_check_int($_aff_id) && $_aff_id > 0) $_insert[] = "('" . (int) $product_id . "','" . (int) $_scheme_id . "','coupon','" . (int) $_coupon_id . "','" . (int) $_aff_id . "')";
+					}				
+				}
+			}
+			if(sizeof($_insert) > 0) $this->db->query("insert into " . DB_PREFIX . "mta_product_affiliate (product_id, mta_scheme_id, price_mod_type, price_mod_id, affiliate_id) values " . implode(',', $_insert));			
+		}		
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="3"><![CDATA[$this->cache->delete('product');]]></search>
+			<add><![CDATA[
+		$this->db->query("delete from " . DB_PREFIX . "mta_product_affiliate where product_id='" . (int)$product_id. "'");//+mod by yp
+		$this->db->query("delete from " . DB_PREFIX . "mta_product where product_id='" . (int)$product_id. "'");//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[DELETE FROM " . DB_PREFIX . "product_discount]]></search>
+			<add><![CDATA[
+$this->db->query("DELETE FROM " . DB_PREFIX . "mta_product WHERE product_id = '" . (int)$product_id . "' and price_mod_type='discount'");//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[DELETE FROM " . DB_PREFIX . "product_special]]></search>
+			<add><![CDATA[
+$this->db->query("DELETE FROM " . DB_PREFIX . "mta_product WHERE product_id = '" . (int)$product_id . "' and price_mod_type='special'");//+mod by yp
+]]></add>
+		</operation>
+
+	</file>	
+	<file name="admin/model/report/affiliate.php">
+		<operation>
+			<search position="before"><![CDATA[function getCommission]]></search>
+			<add><![CDATA[
+	//+mod by yp start
+	private function _mta_getCommission($data = array()) { 
+		$sql_e = "SELECT at.affiliate_id, SUM(at.amount) AS total_earnings FROM " . DB_PREFIX . "affiliate_transaction at";
+		$sql = "SELECT at.affiliate_id, CONCAT(a.firstname, ' ', a.lastname) AS affiliate, a.email, a.status, SUM(at.amount) AS commission, COUNT(o.order_id) AS orders, SUM(o.total) AS total FROM " . DB_PREFIX . "affiliate_transaction at LEFT JOIN `" . DB_PREFIX . "affiliate` a ON (at.affiliate_id = a.affiliate_id) LEFT JOIN `" . DB_PREFIX . "order` o ON (at.order_id = o.order_id)";
+		
+		$implode = array();
+		
+		if (preg_match("/^\d{4}\-\d{2}\-\d{2}$/", $data['filter_date_start'])) {
+			$implode[] = "DATE(at.date_added) >= '" . $this->db->escape($data['filter_date_start']) . "'";
+		}
+
+		if (preg_match("/^\d{4}\-\d{2}\-\d{2}$/", $data['filter_date_end'])) {
+			$implode[] = "DATE(at.date_added) <= '" . $this->db->escape($data['filter_date_end']) . "'";
+		}	
+		
+		if ($implode) {
+			$_imp = " WHERE " . implode(" AND ", $implode);
+			$sql .= $_imp;
+			$sql_e .= $_imp . " AND at.amount > 0";
+		} else {
+			$sql_e .= " WHERE at.amount > 0";
+		}
+				
+		$sql .= " GROUP BY at.affiliate_id ORDER BY commission DESC";
+		$sql_e .= " AND at.affiliate_id in ([[AFFILIATES]]) GROUP BY at.affiliate_id";
+				
+		if (isset($data['start']) || isset($data['limit'])) {
+			if ($data['start'] < 0) {
+				$data['start'] = 0;
+			}			
+
+			if ($data['limit'] < 1) {
+				$data['limit'] = 20;
+			}	
+			
+			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+			$sql_e .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+		}
+			
+		$query = $this->db->query($sql);
+		$rows = $query->rows;
+		$_aff_ids = array();
+		foreach($rows as $_i => $_r) {
+			if($data['filter_balance'] > 0 && $_r['commission'] < $data['filter_balance']) {
+				unset($rows[$_i]);
+				continue;
+			}
+			$_aff_ids[] = $_r['affiliate_id'];			
+		}
+		$rows = array_values($rows);
+		$sql_e = str_replace('[[AFFILIATES]]', implode(',', $_aff_ids), $sql_e);
+		
+		if(sizeof($_aff_ids) > 0) {
+			$query_e = $this->db->query($sql_e);
+			$rows_e = array();
+			foreach($query_e->rows as $_r) {
+				$rows_e[intval($_r['affiliate_id'])] = $_r['total_earnings'];
+			}
+		} else {
+			$rows_e = array();
+		}
+		
+		foreach($rows as $_i => $_r) {
+			if(isset($rows_e[intval($_r['affiliate_id'])])) {
+				$_r['total_earnings'] = $rows_e[intval($_r['affiliate_id'])];
+				$rows[$_i] = $_r;
+			}
+		}		
+		return $rows;
+	}
+	//+mod by yp end
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[function getCommission]]></search>
+			<add><![CDATA[
+return $this->_mta_getCommission($data);//+mod by yp
+]]></add>
+		</operation>
+	</file>	
+	<file name="admin/model/sale/affiliate.php">
+		<operation>
+			<search position="replace"><![CDATA[$this->db->escape($data['payment'])]]></search>
+			<add><![CDATA[(isset($data['payment']) ? $this->db->escape($data['payment']) : '')]]></add>
+		</operation>
+		<operation>
+			<search position="before" offset="2"><![CDATA[function editAffiliate]]></search>
+			<add><![CDATA[
+      	//+mod by yp start
+      	if(!isset($affiliate_id)) $affiliate_id = $this->db->getLastId();
+      	if(!$affiliate_id) return false;      	
+      	if($data['parent_affiliate_id']) {
+					$res = $this->db->query("select all_parent_ids as allids from " . DB_PREFIX . "mta_affiliate where affiliate_id='" . $data['parent_affiliate_id'] . "'");
+					$parent_ids = !$res->row['allids'] ? array() : explode(',', $res->row['allids']);
+					array_unshift($parent_ids, $data['parent_affiliate_id']);
+					$level_original = sizeof($parent_ids) + 1;
+					$parent_ids = implode(',', $parent_ids);
+				} else { 
+					$data['parent_affiliate_id'] = '0';
+					$level_original = '1';
+					$parent_ids = '';
+				}
+				$this->db->query("insert  " . DB_PREFIX . "mta_affiliate set affiliate_id='$affiliate_id', mta_scheme_id=" . ($data['scheme'] ? "'" . $data['scheme'] . "'" : "null") . ", parent_affiliate_id='" . $data['parent_affiliate_id'] . "', all_parent_ids='" . $this->db->escape($parent_ids) . "', level_original='$level_original'"); 
+				$this->approve($affiliate_id);
+				return true;
+				//+mod by yp end   	
+
+]]></add>
+		</operation>	
+		<operation>
+			<search position="after" offset="2"><![CDATA[if ($data['password'])]]></search>
+			<add><![CDATA[
+    //+mod by yp start
+    //mta_affiliate
+    $res = $this->db->query("select mta_scheme_id, parent_affiliate_id from " . DB_PREFIX . "mta_affiliate WHERE affiliate_id='$affiliate_id'");
+		if(!$res->row['parent_affiliate_id']) $res->row['parent_affiliate_id'] = 0;
+		if(!$data['parent_affiliate_id']) $data['parent_affiliate_id'] = 0;
+		if(is_null($res->row['mta_scheme_id']) || !$res->row['mta_scheme_id']) $res->row['mta_scheme_id'] = 0;
+		if(!$data['scheme']) $data['scheme'] = 0;
+		if($res->row['mta_scheme_id'] != $data['scheme']) $this->db->query("update " . DB_PREFIX . "mta_affiliate set mta_scheme_id=" . ($data['scheme'] ? "'" . $data['scheme'] . "'" : "null") . " WHERE affiliate_id='$affiliate_id'");
+
+		if($res->row['parent_affiliate_id'] != $data['parent_affiliate_id']) {
+			$parent_changed = true;
+			if($data['parent_affiliate_id']) {
+				$res = $this->db->query("select all_parent_ids as allids from " . DB_PREFIX . "mta_affiliate where affiliate_id='" . $data['parent_affiliate_id'] . "'");
+				$parent_ids = !$res->row['allids'] ? array() : explode(',', $res->row['allids']);
+				if(!in_array(strval($affiliate_id), $parent_ids)) {
+					array_unshift($parent_ids, $data['parent_affiliate_id']);
+					$this->db->query("update  " . DB_PREFIX . "mta_affiliate set parent_affiliate_id='" . $data['parent_affiliate_id'] . "', all_parent_ids='" . $this->db->escape(implode(',', $parent_ids)) . "', level_original='" . (sizeof($parent_ids) + 1) . "' where affiliate_id='$affiliate_id'");
+				} else {
+					$parent_changed = false;
+				}					
+			} else {
+				$parent_ids = array();
+				$this->db->query("update  " . DB_PREFIX . "mta_affiliate set parent_affiliate_id='0', all_parent_ids='', level_original='1' where affiliate_id='$affiliate_id'");				
+			}				
+			//change parents for all children of this affiliate
+			if($parent_changed === true) $this->_fix_children($affiliate_id, $parent_ids);
+		}         
+    return true;
+    //+mod by yp end
+
+]]></add>
+		</operation>		
+		<operation>
+			<search position="after"><![CDATA[function deleteAffiliate(]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		$this->load->model('mta/mta_affiliate');
+		$aff = $this->model_mta_mta_affiliate->getAffiliate($affiliate_id);
+		if($aff) {
+			$p_id = isset($aff['parent_affiliate_id']) && $aff['parent_affiliate_id'] ? intval($aff['parent_affiliate_id']) : 0;
+			$res = $this->db->query("select affiliate_id as id from " . DB_PREFIX . "mta_affiliate where parent_affiliate_id='" . (int)$affiliate_id . "'");
+			$_ch = array();
+			foreach($res->rows as $_r) {
+				$_ch[] = $_r['id'];				
+			}			
+			$this->db->query("UPDATE " . DB_PREFIX . "mta_affiliate SET parent_affiliate_id='{$p_id}', all_parent_ids='" . $this->db->escape(implode(',', $aff['parents'])) . "', level_original='" . (sizeof($aff['parents']) + 1) . "' where parent_affiliate_id='" . (int)$affiliate_id . "'");	
+			foreach($_ch as $_rid) {				
+				$this->_fix_children($_rid, $aff['parents']);
+			}
+		}
+		$this->db->query("UPDATE " . DB_PREFIX . "customer SET affiliate_id='{$p_id}' WHERE affiliate_id='" . (int)$affiliate_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "mta_affiliate WHERE affiliate_id = '" . (int)$affiliate_id . "'");
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="1"><![CDATA[implode = array()]]></search>
+			<add><![CDATA[
+$sql = "SELECT *, CONCAT(a.firstname, ' ', a.lastname) AS name, (SELECT SUM(at.amount) FROM " . DB_PREFIX . "affiliate_transaction at WHERE at.affiliate_id = a.affiliate_id GROUP BY at.affiliate_id) AS balance, mta_a.mta_scheme_id as scheme_id, mta_a.level_original as level FROM " . DB_PREFIX . "affiliate AS a left join " . DB_PREFIX . "mta_affiliate AS mta_a on mta_a.affiliate_id=a.affiliate_id";//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="1"><![CDATA[if ($implode) {]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		if(isset($data['ids']) && preg_match("/^\d+(?:\,\d+)*$/", $data['ids'])) {
+			$implode[] = 'a.affiliate_id ' . (isset($data['filter_ids']) && $data['filter_ids'] == 'exclude' ? 'NOT ' : '') . 'in (' . $data['ids'] . ')';			
+		}
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['a.date_added']]></search>
+			<add><![CDATA['a.date_added',
+'mta_a.level_original'//+mod by yp
+]]></add>
+		</operation>	
+		<operation>
+			<search position="before" index="2"><![CDATA[if ($implode) {]]></search>
+			<add><![CDATA[
+		//+mod by  yp start
+		if(isset($data['ids']) && preg_match("/^\d+(?:\,\d+)*$/", $data['ids'])) {
+			$implode[] = 'affiliate_id ' . (isset($data['filter_ids']) && $data['filter_ids'] == 'exclude' ? 'NOT ' : '') . 'in (' . $data['ids'] . ')';			
+		}		
+		//+mod by  yp end
+]]></add>
+		</operation>		
+
+		<operation>
+			<search position="before" index="2"><![CDATA[$mail = new Mail();]]></search>
+			<add><![CDATA[
+			//+mod by yp start
+			if(floatval($amount) < 0) {
+				$text_received = $this->language->get('text_payment_received');				
+				$amount = abs(floatval($amount));
+			} else {
+				$text_received = $this->language->get('text_transaction_received');				
+			}
+			
+			$message  = sprintf($text_received, $this->currency->format($amount, $this->config->get('config_currency'))) . "\n\n";
+			$message .= sprintf($this->language->get('text_balance'), $this->currency->format($this->getTransactionTotal($affiliate_id), $this->config->get('config_currency')));
+			//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" offset="1"><![CDATA[?>]]></search>
+			<add><![CDATA[
+	//+mod by yp start	
+	public function addMtaTransaction($order_id, $affiliate_id, $description) {
+		$res = $this->db->query("select mta_order_id, commission from " . DB_PREFIX . "mta_order where order_id='" . (int) $order_id . "' and affiliate_id='" . (int) $affiliate_id . "' and commission_added='0'");
+		if($res->num_rows < 1) return false;
+		$commission = $res->row['commission'];
+		$res2 = $this->db->query("select " . DB_PREFIX . "mta_order_product.num_levels, " . DB_PREFIX . "mta_order_product.level, " . DB_PREFIX . "order_product.quantity, " . DB_PREFIX . "product_description.name as product_name from " . DB_PREFIX . "mta_order_product left join " . DB_PREFIX . "order_product on " . DB_PREFIX . "order_product.order_product_id=" . DB_PREFIX . "mta_order_product.order_product_id left join " . DB_PREFIX . "product_description on " . DB_PREFIX . "product_description.product_id=" . DB_PREFIX . "mta_order_product.product_id where " . DB_PREFIX . "mta_order_product.mta_order_id='" . (int) $res->row['mta_order_id'] . "'  group by " . DB_PREFIX . "mta_order_product.order_product_id");
+		if($res2->num_rows > 0) {
+			$_ar = array();
+			foreach($res2->rows as $_r) {
+				$_str = $_r['product_name'];
+				if($_r['quantity'] > 1) $_str .= ' x' . $_r['quantity'];
+				$_str .= ' Tier ' . (intval($_r['num_levels']) - intval($_r['level']) + 1);
+				$_ar[] = $_str;
+			}
+
+			if(sizeof($_ar) > 0) $description .= ': ' . implode(', ', $_ar);
+		}		
+		$this->db->query("update " . DB_PREFIX . "mta_order set commission_added='1' where order_id='" . (int) $order_id . "' and affiliate_id='" . (int) $affiliate_id . "'");
+		$this->addTransaction($affiliate_id, $description, $commission, $order_id);
+		return true;
+	}
+
+	public function deleteMtaTransaction($order_id, $affiliate_id) {
+		$this->db->query("DELETE FROM " . DB_PREFIX . "affiliate_transaction WHERE order_id = '" . (int) $order_id . "' and affiliate_id = '" . (int) $affiliate_id . "'");		
+		if(!$this->db->countAffected()) return false;
+		$this->db->query("update " . DB_PREFIX . "mta_order set commission_added='0' where order_id='" . (int) $order_id . "' and affiliate_id='" . (int) $affiliate_id . "'");
+		return true;
+	}
+
+	public function getOrderCommissions($order_id) {
+		$res = $this->db->query("select " . DB_PREFIX . "mta_order.mta_order_id, " . DB_PREFIX . "mta_order.order_id, " . DB_PREFIX . "mta_order.commission AS commission_total, " . DB_PREFIX . "mta_order.affiliate_id, " . DB_PREFIX . "mta_order.commission_added, " . DB_PREFIX . "mta_order.autoadd, CONCAT(" . DB_PREFIX . "affiliate.firstname, ' ', " . DB_PREFIX . "affiliate.lastname) as affiliate_name, " . DB_PREFIX . "mta_scheme.mta_scheme_id AS scheme_id, " . DB_PREFIX . "mta_scheme.scheme_name AS scheme_name, " . DB_PREFIX . "mta_order_product.commission, " . DB_PREFIX . "product.model AS product_name FROM " . DB_PREFIX . "mta_order left join " . DB_PREFIX . "affiliate on " . DB_PREFIX . "affiliate.affiliate_id=" . DB_PREFIX . "mta_order.affiliate_id left join " . DB_PREFIX . "mta_order_product on " . DB_PREFIX . "mta_order_product.mta_order_id=" . DB_PREFIX . "mta_order.mta_order_id left join " . DB_PREFIX . "mta_scheme on " . DB_PREFIX . "mta_scheme.mta_scheme_id=" . DB_PREFIX . "mta_order_product.mta_scheme_id LEFT JOIN " . DB_PREFIX . "product ON " . DB_PREFIX . "product.product_id=" . DB_PREFIX . "mta_order_product.product_id WHERE " . DB_PREFIX . "mta_order.order_id='" . (int) $order_id . "' group by " . DB_PREFIX . "mta_order_product.order_product_id, " . DB_PREFIX . "mta_order_product.affiliate_id order by " . DB_PREFIX . "mta_order.mta_order_id asc");
+		//if($res->num_rows < 1) return false;
+		return $res->rows;
+	}	
+	
+	private function _fix_children($parent, $parent_parents) {
+		//change parents for all children of this affiliate		
+		$res = $this->db->query("select affiliate_id as id from " . DB_PREFIX . "mta_affiliate where parent_affiliate_id='$parent'");		
+		if($res->num_rows < 1) return;		
+		$ids = array();
+		foreach($res->rows as $r) {
+			$ids[] = $r['id'];
+		}		
+		array_unshift($parent_parents, $parent);
+		$_q = "update " . DB_PREFIX . "mta_affiliate set all_parent_ids='" . $this->db->escape(implode(',', $parent_parents)) . "', level_original='" . (sizeof($parent_parents) + 1) . "' where parent_affiliate_id='$parent'";		
+		$this->db->query($_q);
+		foreach($ids as $parent) {			
+			$this->_fix_children($parent, $parent_parents);
+		}
+	}
+	//+mod by yp end
+]]></add>
+		</operation>
+	</file>	
+	<file name="admin/view/template/report/affiliate_commission.tpl">
+		<operation>
+			<search position="before" index="1"><![CDATA[<td style="text-align:]]></search>
+			<add><![CDATA[
+<td><?php echo $entry_current_balance; ?> <input type="text" name="filter_balance" value="<?php echo $filter_balance;?>" /></td><?php /* //+mod by yp */ ?>
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$column_commission]]></search>
+			<add><![CDATA[$column_current_balance]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[<td class="right"><?php echo $column_orders; ?></td>]]></search>
+			<add><![CDATA[          ]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$column_total]]></search>
+			<add><![CDATA[
+<td class="right"><?php echo $column_orders; ?></td>			
+			]]></add>
+		</operation>	
+		<operation>
+			<search position="replace"><![CDATA[<?php echo $affiliate['affiliate']; ?>]]></search>
+			<add><![CDATA[
+<?php echo $affiliate['affiliate']; ?>
+						<?php if(!$payout_accounts[$affiliate['affiliate_id']]) {?>
+						<br /><span style="font-weight:bold;color:#e11;"><?php echo $text_no_payout_account;?></span>
+						<?php }?>
+]]></add>
+		</operation>		
+		<operation>
+			<search position="after"><![CDATA[$affiliate['commission'];]]></search>
+			<add><![CDATA[
+        <td class="right"><?php echo $affiliate['total_earnings']; ?></td>
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[<td class="right"><?php echo $affiliate['total']; ?></td>]]></search>
+			<add><![CDATA[          ]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[<?php echo $action['href']; ?>"]]></search>
+			<add><![CDATA[<?php echo $action['href']; ?>" target="_blank"]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[location = url;]]></search>
+			<add><![CDATA[
+	var filter_balance = $('input[name=\'filter_balance\']').attr('value');
+
+	if (filter_balance > 0) {
+		url += '&filter_balance=' + encodeURIComponent(filter_balance);
+	}
+]]></add>
+		</operation>		
+	</file>	
+	<file name="admin/view/template/sale/affiliate_form.tpl">
+		<operation>
+			<search position="before" offset="1"><![CDATA[$entry_telephone]]></search>
+			<add><![CDATA[
+<?php /* //+mod by yp start */ ?>
+            <tr><td><?php echo $entry_parent;?></td>
+              <td id="parent_affiliate_td"><span><?php if($parent_affiliate_id) {?>
+              	<a href="<?php echo $parent_affiliate_link;?>" target="_blank"><?php echo $parent_affiliate_name;?></a>
+              	<?php
+              } else {
+              	echo $text_none;
+              }?>
+             	</span><input type="button" rel="#affiliate_dt_overlay_div" id="affiliate_dt_overlay_open" value="<?php echo $text_select_affiliate;?>" /> <input type="button" id="affiliate_set_none" value="<?php echo $text_set_none;?>" />
+              <input type="hidden" name="parent_affiliate_id" value="<?php echo $parent_affiliate_id;?>" />
+              <input type="hidden" name="parent_affiliate_name" value="<?php echo $parent_affiliate_name;?>" />
+              </td>
+            </tr>
+
+            <tr>
+              <td><?php echo $entry_scheme; ?></td>
+              <td>
+              <select name="scheme">
+              	<option value="0"<?php if(!$scheme_id) {?> selected="selected"<?php }?>><?php echo $option_default;?></option>
+              	<?php	
+              		foreach($schemes as $_id => $_name) {?>
+              	<option value="<?php echo $_id;?>"<?php if($scheme_id == $_id) {?> selected="selected"<?php }?>><?php echo $_name;?></option>
+              		<?php }?>              		
+              </select>
+              </td>
+            </tr>
+<?php /* //+mod by yp end */ ?>            
+
+]]></add>
+		</operation>
+
+		<operation>
+			<search position="before" index="1"><![CDATA[<script type="text/javascript">]]></search>
+			<add><![CDATA[
+<?php /* //+mod by yp start */ ?>
+<div style="background-color:#efefef;border:2px solid #ababab;z-index:99999999;display:none;" id="affiliate_dt_overlay_div"><div style="text-align:right;padding-right:5px;"><a class="overlay_close"><?php echo $oy_close;?></a><div style="text-align:center;font-weight:bold;"><?php echo $oy_title;?><hr /></div><div style="height:400px;width:850px;overflow-y:auto;margin:3px;padding:5px;">
+<table cellpadding="0" cellspacing="0" border="0" id="affiliate_dt">
+	<thead>
+		<tr>
+			<th width="5%"><?php echo $oy_id;?></th>
+			<th width="20%"><?php echo $oy_name;?></th>
+			<th width="20%"><?php echo $oy_email;?></th>
+			<th width="20%"><?php echo $oy_scheme;?></th>
+			<th width="5%"><?php echo $oy_level;?></th>
+			<th width="10%"><?php echo $oy_balance;?></th>			
+			<th width="20%"><?php echo $oy_date_added;?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="7" class="dataTables_empty"><?php echo $oy_loading;?></td>
+
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<th><?php echo $oy_id;?></th>
+			<th><?php echo $oy_name;?></th>
+			<th><?php echo $oy_email;?></th>
+			<th><?php echo $oy_scheme;?></th>
+			<th><?php echo $oy_level;?></th>
+			<th><?php echo $oy_balance;?></th>			
+			<th><?php echo $oy_date_added;?></th>
+		</tr>
+	</tfoot>
+</table>
+</div>
+<div style="text-align:right;padding-right:5px;"><hr /><a class="overlay_close"><?php echo $oy_close;?></a></div>
+</div>
+<script type="text/javascript" src="view/javascript/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="view/javascript/jquery.tools.min.js"></script>
+
+<script type="text/javascript"><!--
+	
+$(document).ready(function () { 
+    $('#affiliate_dt').dataTable( {
+        'bProcessing': true,
+        'bServerSide': true,
+        'sAjaxSource': document.location.href.replace(/sale\/affiliate(?:\/\w*)/, 'sale/mta_affiliate_dt'),
+        'sServerMethod' : 'POST',
+        'sPaginationType' : 'full_numbers',
+        'iDisplayLength' : 10,
+        'aoColumns': [
+        		{ 'mDataProp': 'id', 'bSearchable' : false, 'bSortable' : false },
+            { 'mDataProp': 'name' },
+            { 'mDataProp': 'email' },
+            { 'mDataProp': 'scheme', 'bSearchable' : false, 'bSortable' : false },            
+            { 'mDataProp': 'level', 'bSearchable' : false},
+            { 'mDataProp': 'balance', 'bSearchable' : false, 'bSortable' : false},
+            { 'mDataProp': 'date_added', 'bSearchable' : false  }
+        ],
+
+        'fnDrawCallback': function(){            
+            $('.affiliate_dt_row').css({'cursor' : 'pointer'});
+            $('.affiliate_dt_row').click( function () {
+            	$('#affiliate_dt_overlay_open').overlay().close();            	
+              var _id = $(this).attr('id').split('-')[1];
+              <?php if($affiliate_id) {?>
+              if(_id == <?php echo $affiliate_id;?>) return;
+            	<?php }?>
+              var _name = $($(this).find('td')[1]).text();
+              $('#parent_affiliate_td span').empty();
+			  var _href = document.location.href.replace(/affiliate_id=\d+/, 'affiliate_id='+_id);
+			  if(_href.indexOf('affiliate_id') == -1) _href += '&affiliate_id='+_id;
+              var _a = $('<a/>').attr('href', _href).attr('target', '_blank').text(_name).appendTo($('#parent_affiliate_td span')); 
+              $('input[name="parent_affiliate_id"]').val(_id);  
+              $('input[name="parent_affiliate_name"]').val(_name);  
+              $('#level_span').text(parseInt($($(this).find('td')[4]).text()) + 1);             
+            });
+        }        
+    } );
+    
+$('#affiliate_set_none').click(function() {
+	$('#parent_affiliate_td span').html('<?php echo mta_jsstr($text_none);?>');
+	$('input[name="parent_affiliate_id"]').val('0');
+	$('input[name="parent_affiliate_name"]').val('');
+	$('#level_span').text('1');
+});             	
+    
+$('#affiliate_dt_overlay_open').overlay({
+        	mask: {
+        		color: '#efefef',
+            loadSpeed: 200,
+            zIndex: '999999959',
+        		opacity: 0.9
+        	},
+        	closeOnClick: false
+      });
+      $('.overlay_close').click(function() {
+      	$('#affiliate_dt_overlay_open').overlay().close();
+      });      
+});
+//--></script>
+<?php /* //+mod by yp end */ ?>
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[<table class="form">]]></search>
+			<add><![CDATA[
+					<?php /* //+mod by yp start */ ?>
+          	<tr><td>&nbsp;</td>
+          		<td>  <?php echo $text_level;?>  <span style="font-weight:bold;" id="level_span"><?php echo $level;?></span></td>
+          	</tr>
+					<?php /* //+mod by yp end */ ?>
+]]></add>
+		</operation>
+	</file>	
+	<file name="admin/view/template/sale/affiliate_list.tpl">
+		<operation error="log">
+			<search position="before" index="1"><![CDATA[$column_balance]]></search>
+			<add><![CDATA[
+<td class="right"><?php echo $column_scheme; ?></td><?php /* //+mod by yp */?>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="before"><![CDATA[name="filter_status"]]></search>
+			<add><![CDATA[
+<td>&nbsp;</td>
+]]></add>
+		</operation>
+		<operation error="log">
+			<search position="before"><![CDATA[$affiliate['balance]]></search>
+			<add><![CDATA[
+        <td class="right"><?php echo $affiliate['scheme']; ?><br /><?php echo $text_level;?> <?php echo $affiliate['level'];?></td><?php /* //+mod by yp */?>
+]]></add>
+		</operation>		
+	</file>	
+	<file name="admin/view/template/sale/customer_form.tpl">
+		<operation>
+			<search position="before" index="1"><![CDATA[</table>]]></search>
+			<add><![CDATA[
+							<?php /* //+mod by yp start
+							*/ ?>
+            <tr><td><?php echo $entry_affiliate;?></td>
+              <td id="affiliate_td"><span><?php if($affiliate_id) {?>
+              	<a href="<?php echo $affiliate_link;?>" target="_blank"><?php echo $affiliate_name;?></a>              	
+              	<?php
+              } else {
+              	echo $text_none;
+              }?>
+             	</span><input type="button" rel="#affiliate_dt_overlay_div" id="affiliate_dt_overlay_open" value="<?php echo $text_select_affiliate;?>" /> <input type="button" id="affiliate_set_none" value="<?php echo $text_set_none;?>" />
+              <input type="hidden" name="affiliate_id" value="<?php echo $affiliate_id;?>" />
+              <input type="hidden" name="affiliate_name" value="<?php echo $affiliate_name;?>" />
+              </td>
+            </tr>
+							<?php /* //+mod by yp end
+							*/ ?>	
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" offset="1"><![CDATA[var address_row]]></search>
+			<add><![CDATA[
+							<?php /* //+mod by yp start
+							*/ ?>
+<div style="background-color:#efefef;border:2px solid #ababab;z-index:99999999;display:none;" id="affiliate_dt_overlay_div"><div style="text-align:right;padding-right:5px;"><a class="overlay_close"><?php echo $oy_close;?></a><div style="text-align:center;font-weight:bold;"><?php echo $oy_title;?><hr /></div><div style="height:400px;width:850px;overflow-y:auto;margin:3px;padding:5px;">
+<table cellpadding="0" cellspacing="0" border="0" id="affiliate_dt">
+	<thead>
+		<tr>
+			<th width="5%"><?php echo $oy_id;?></th>
+			<th width="20%"><?php echo $oy_name;?></th>
+			<th width="20%"><?php echo $oy_email;?></th>
+			<th width="20%"><?php echo $oy_scheme;?></th>
+			<th width="5%"><?php echo $oy_level;?></th>
+			<th width="10%"><?php echo $oy_balance;?></th>			
+			<th width="20%"><?php echo $oy_date_added;?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="7" class="dataTables_empty"><?php echo $oy_loading;?></td>
+
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<th><?php echo $oy_id;?></th>
+			<th><?php echo $oy_name;?></th>
+			<th><?php echo $oy_email;?></th>
+			<th><?php echo $oy_scheme;?></th>
+			<th><?php echo $oy_level;?></th>
+			<th><?php echo $oy_balance;?></th>			
+			<th><?php echo $oy_date_added;?></th>
+		</tr>
+	</tfoot>
+</table>
+</div>
+<div style="text-align:right;padding-right:5px;"><hr /><a class="overlay_close"><?php echo $oy_close;?></a></div>
+</div>
+<script type="text/javascript" src="view/javascript/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="view/javascript/jquery.tools.min.js"></script>
+
+<script type="text/javascript"><!--
+	
+$(document).ready(function () { 
+    $('#affiliate_dt').dataTable( {
+        'bProcessing': true,
+        'bServerSide': true,
+        'sAjaxSource': document.location.href.replace(/sale\/customer(?:\/\w*)/, 'sale/mta_affiliate_dt'),
+        'sServerMethod' : 'POST',
+        'sPaginationType' : 'full_numbers',
+        'iDisplayLength' : 10,
+        'aoColumns': [
+        		{ 'mDataProp': 'id', 'bSearchable' : false, 'bSortable' : false },
+            { 'mDataProp': 'name' },
+            { 'mDataProp': 'email' },
+            { 'mDataProp': 'scheme', 'bSearchable' : false, 'bSortable' : false },            
+            { 'mDataProp': 'level', 'bSearchable' : false},
+            { 'mDataProp': 'balance', 'bSearchable' : false, 'bSortable' : false},
+            { 'mDataProp': 'date_added', 'bSearchable' : false  }
+        ],
+
+        'fnDrawCallback': function(){            
+            $('.affiliate_dt_row').css({'cursor' : 'pointer'});
+            $('.affiliate_dt_row').click( function () {
+            	$('#affiliate_dt_overlay_open').overlay().close();            	
+              var _id = $(this).attr('id').split('-')[1];
+              var _name = $($(this).find('td')[1]).text();
+              $('#affiliate_td span').empty();
+			  var _href = document.location.href.replace(/customer_id=\d+/, 'affiliate_id='+_id).replace('customer', 'affiliate');
+			  if(_href.indexOf('affiliate_id') == -1) _href += '&affiliate_id='+_id;
+              var _a = $('<a/>').attr('href', _href).attr('target', '_blank').text(_name).appendTo($('#affiliate_td span'));
+              $('input[name="affiliate_id"]').val(_id);  
+              $('input[name="affiliate_name"]').val(_name);                            
+            });
+        }        
+    } );
+    
+$('#affiliate_set_none').click(function() {
+	$('#affiliate_td span').html('<?php echo mta_jsstr($text_none);?>');
+	$('input[name="affiliate_id"]').val('0');
+	$('input[name="affiliate_name"]').val('');
+});             	
+    
+$('#affiliate_dt_overlay_open').overlay({
+        	mask: {
+        		color: '#efefef',
+            loadSpeed: 200,
+            zIndex: '999999959',
+        		opacity: 0.9
+        	},
+        	closeOnClick: false
+      });
+      $('.overlay_close').click(function() {
+      	$('#affiliate_dt_overlay_open').overlay().close();
+      });      
+});
+//--></script>
+
+							<?php /* //+mod by yp start
+							*/ ?>
+]]></add>
+		</operation>
+	</file>
+	<file name="admin/controller/report/affiliate_commission.php">
+		<operation>
+			<search position="before" index="1"><![CDATA[if (isset($this->request->get['page'])) {]]></search>
+			<add><![CDATA[
+
+		$filter_balance = isset($this->request->get['filter_balance']) && mta_check_int($this->request->get['filter_balance']) ? $this->request->get['filter_balance'] : 0;//+mod by yp
+
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="2"><![CDATA[if (isset($this->request->get['page'])) {]]></search>
+			<add><![CDATA[
+		if(isset($this->request->get['filter_balance'])) $url .= '&filter_balance=' . $this->request->get['filter_balance'];//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA['filter_date_start'	=> $filter_date_start,]]></search>
+			<add><![CDATA[
+'filter_balance' => $filter_balance,//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$results = $this->model_report_affiliate->getCommission($data);]]></search>
+			<add><![CDATA[
+$affiliate_ids = array();//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$action = array();]]></search>
+			<add><![CDATA[
+$affiliate_ids[] = intval($result['affiliate_id']);//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA['affiliate'  => $result['affiliate']]></search>
+			<add><![CDATA[
+				//+mod by yp start
+				'affiliate_id' => intval($result['affiliate_id']),
+				'commission' => $this->currency->format($result['commission'], $this->config->get('config_currency')),
+				'total_earnings' => $this->currency->format((isset($result['total_earnings']) ? $result['total_earnings'] : 0), $this->config->get('config_currency')),
+				//+mod by yp end
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['heading_title'] = $this->language->get('heading_title');]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		$this->load->model('mta/mta_affiliate');
+		$this->data['payout_accounts'] = $this->model_mta_mta_affiliate->getPayoutAccounts($affiliate_ids);		
+		$this->data['column_current_balance'] = $this->language->get('column_current_balance');		
+		$this->data['text_no_payout_account'] = $this->language->get('text_no_payout_account');		
+		$this->data['entry_current_balance'] = $this->language->get('entry_current_balance');
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" index="3"><![CDATA[if (isset($this->request->get['filter_date_end'])) {]]></search>
+			<add><![CDATA[
+if(isset($this->request->get['filter_balance'])) $url .= '&filter_balance=' . $this->request->get['filter_balance'];//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->template = 'report/affiliate_commission.tpl';]]></search>
+			<add><![CDATA[
+$this->data['filter_balance'] = $filter_balance;//+mod by yp
+]]></add>
+		</operation>
+
+	</file>	
+	<file name="admin/controller/sale/affiliate.php">
+		<operation>
+			<search position="after"><![CDATA[private $error = array();]]></search>
+			<add><![CDATA[
+private $_schemes = false;
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="2,3"><![CDATA[$this->document->setTitle($this->language->get('heading_title'));]]></search>
+			<add><![CDATA[
+$this->document->addStyle('view/stylesheet/jquery.dataTables.css');//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$this->model_sale_affiliate->addAffiliate($this->request->post);]]></search>
+			<add><![CDATA[
+if($this->model_sale_affiliate->addAffiliate($this->request->post)) {//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$this->model_sale_affiliate->editAffiliate($this->request->get['affiliate_id'], $this->request->post);]]></search>
+			<add><![CDATA[
+if($this->model_sale_affiliate->editAffiliate($this->request->get['affiliate_id'], $this->request->post)) {//+mod by yp
+]]></add>
+		</operation>		
+		<operation>
+			<search position="after" index="1,2"><![CDATA[$this->redirect($this->url->link('sale/affiliate', 'token=' . $this->session->data['token'] . $url, 'SSL'));]]></search>
+			<add><![CDATA[
+//+mod by yp start			
+			} else {
+				$this->error['warning'] = $this->language->get('error_database');
+			}
+//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[$results = $this->model_sale_affiliate->getAffiliates($data);]]></search>
+			<add><![CDATA[		
+		$this->_get_schemes();//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[=> $result['email'],]]></search>
+			<add><![CDATA[ 
+'scheme' => ($result['scheme_id'] ? $this->_schemes[$result['scheme_id']] : $this->language->get('text_default')),//+mod by yp
+'level' => $result['level'], //+ mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" index="1"><![CDATA[$this->data['token'] = $this->session->data['token'];]]></search>
+			<add><![CDATA[		
+		//+mod by yp start
+		$this->data['text_level'] = $this->language->get('text_level');		
+		$this->data['column_scheme'] = $this->language->get('column_scheme');
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->data['text_bank'] = $this->language->get('text_bank');]]></search>
+			<add><![CDATA[	
+		//+mod by yp start
+		$this->data['text_none'] = $this->language->get('text_none');
+		$this->data['text_level'] = $this->language->get('text_level');
+		$this->data['option_default'] = $this->language->get('option_default');
+		$this->data['text_select_affiliate'] = $this->language->get('text_select_affiliate');
+		$this->data['text_set_none'] = $this->language->get('text_set_none');
+ 		$this->data['entry_parent'] = $this->language->get('entry_parent');//+mod by yp
+ 		$this->data['entry_scheme'] = $this->language->get('entry_scheme');//+mod by yp
+$this->data['oy_close'] = $this->language->get('oy_close');
+$this->data['oy_title'] = $this->language->get('oy_title');
+$this->data['oy_loading'] = $this->language->get('oy_loading');
+$this->data['oy_id'] = $this->language->get('oy_id');
+$this->data['oy_name'] = $this->language->get('oy_name');
+$this->data['oy_email'] = $this->language->get('oy_email');
+$this->data['oy_scheme'] = $this->language->get('oy_scheme');
+$this->data['oy_level'] = $this->language->get('oy_level');
+$this->data['oy_balance'] = $this->language->get('oy_balance');
+$this->data['oy_date_added'] = $this->language->get('oy_date_added');
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[if (isset($this->request->get['affiliate_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {]]></search>
+			<add><![CDATA[
+			//+mod by yp start    	
+    	$this->_get_schemes();
+    	$this->data['schemes'] = $this->_schemes;
+    	$this->load->model('mta/mta_affiliate');
+			//+mod by yp end
+]]></add>
+		</operation>		
+		<operation>
+			<search position="after"><![CDATA[$affiliate_info = $this->model_sale_affiliate->getAffiliate($this->request->get['affiliate_id']);]]></search>
+			<add><![CDATA[
+$affiliate_info_mta = $this->model_mta_mta_affiliate->getAffiliate($this->request->get['affiliate_id'], true);//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[if (isset($this->request->post['firstname'])) {]]></search>
+			<add><![CDATA[
+			//+mod by yp start
+    $this->data['level'] = isset($affiliate_info_mta['level_original']) ? $affiliate_info_mta['level_original'] : 1;
+
+    if (isset($this->request->post['parent_affiliate_id'])) {
+      		$this->data['parent_affiliate_id'] = $this->request->post['parent_affiliate_id'];
+		} elseif (!empty($affiliate_info_mta)) { 
+			$this->data['parent_affiliate_id'] = $affiliate_info_mta['parent_affiliate_id'];
+		} else {
+      		$this->data['parent_affiliate_id'] = '';
+    }
+    if($this->data['parent_affiliate_id']) $this->data['parent_affiliate_link'] = $this->url->link('sale/affiliate/update', 'token=' . $this->session->data['token'] . '&affiliate_id=' . $this->data['parent_affiliate_id'], 'SSL');
+			
+    if (isset($this->request->post['parent_affiliate_name'])) {
+      		$this->data['parent_affiliate_name'] = $this->request->post['parent_affiliate_name'];
+		} elseif (!empty($affiliate_info_mta)) { 
+			$this->data['parent_affiliate_name'] = (isset($affiliate_info_mta['parent_affiliate_name']) ? $affiliate_info_mta['parent_affiliate_name'] : '');
+		} else {
+      		$this->data['parent_affiliate_name'] = '';
+    }					
+
+    if (isset($this->request->post['scheme_id'])) {
+      		$this->data['scheme_id'] = $this->request->post['scheme_id'];
+		} elseif (!empty($affiliate_info_mta)) { 
+			$this->data['scheme_id'] = $affiliate_info_mta['scheme_id'];
+		} else {
+     	$this->data['scheme_id'] = 0;
+    }
+
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[function validateDelete]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		/*
+		if(isset($this->request->post['selected']) && sizeof($this->request->post['selected']) > 0) {
+			$res = $this->db->query("select affiliate_id from " . DB_PREFIX . "mta_affiliate where parent_affiliate_id in (" . implode(',', $this->request->post['selected']) . ") limit 1");
+			if($res->num_rows > 0) $this->error['warning'] = 'Some of affiliates you are trying to delete are parent to other affiliates, change parent affiliates or set them to None for child affiliates first.';
+		}
+		*/
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" offset="1"><![CDATA[?>]]></search>
+			<add><![CDATA[
+//+mod by yp start	
+	private function _get_schemes() {
+		if($this->_schemes) return;
+		$this->load->model('mta/mta_scheme');
+		$_s = $this->model_mta_mta_scheme->getSchemes(array('fields' => array('mta_scheme_id as id', 'scheme_name as n')));
+		$this->_schemes = array();
+		foreach($_s as $_s2) {
+			$this->_schemes[$_s2['id']] = $_s2['n'];
+		}
+
+	}		
+//+mod by yp end
+]]></add>
+		</operation>
+	</file>				
+	<file name="admin/controller/sale/order.php">
+		<operation>
+			<search position="after"><![CDATA[function getForm]]></search>
+			<add><![CDATA[			
+$this->data['text_affiliates_edit_in_view'] = $this->language->get('text_affiliates_edit_in_view');//+mod by yp
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[('button_add_history')]]></search>
+			<add><![CDATA[			
+			//+mod by yp start
+			$this->data['text_affiliates'] = $this->language->get('text_affiliates');
+			$this->data['text_affiliates_edit_in_view'] = $this->language->get('text_affiliates_edit_in_view');
+			$this->data['column_affiliate'] = $this->language->get('column_affiliate');
+			$this->data['column_product_name'] = $this->language->get('column_product_name');
+			$this->data['column_product_commission'] = $this->language->get('column_product_commission');
+			$this->data['column_scheme'] = $this->language->get('column_scheme');
+			$this->data['column_total_commission'] = $this->language->get('column_total_commission');
+			//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[if ($order_info['affiliate_id']) {]]></search>
+			<add><![CDATA[
+//+mod by yp start			
+/*
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->data['commission_total'] = $this->model_sale_affiliate->getTotalTransactionsByOrderId($this->request->get['order_id']);]]></search>
+			<add><![CDATA[
+*/
+			if ($order_info['affiliate_id']) {
+				$this->load->model('sale/affiliate');
+				$_aff_infos = $this->model_sale_affiliate->getOrderCommissions($this->request->get['order_id']);
+				if(!$_aff_infos) {
+					$this->data['affiliates'] = false;
+					$this->data['affiliate'] = $this->url->link('sale/affiliate/update', 'token=' . $this->session->data['token'] . '&affiliate_id=' . $order_info['affiliate_id'], 'SSL');
+					$this->data['commission'] = $this->currency->format($order_info['commission'], $order_info['currency_code'], $order_info['currency_value']);
+						
+					$this->load->model('sale/affiliate');
+			
+					$this->data['commission_total'] = $this->model_sale_affiliate->getTotalTransactionsByOrderId($this->request->get['order_id']); 
+				} else {
+					$this->data['affiliate'] = false;
+					$this->data['affiliates'] = array();
+					$__ars = array();
+					foreach($_aff_infos as $_aff_info) {
+						$__ar = array(
+							'affiliate_name' => $_aff_info['affiliate_name'],
+							'commission' => $this->currency->format($_aff_info['commission'], $order_info['currency_code'], $order_info['currency_value']),
+							'commission_total' => $this->currency->format($_aff_info['commission_total'], $order_info['currency_code'], $order_info['currency_value']),
+							'commission_added' => (bool) $_aff_info['commission_added'],
+							'product_name' => $_aff_info['product_name'],
+							'affiliate_id' => $_aff_info['affiliate_id'],
+							'affiliate_link' => $this->url->link('sale/affiliate/update', 'token=' . $this->session->data['token'] . '&affiliate_id=' . $_aff_info['affiliate_id'], 'SSL'),
+							'affiliate_scheme_id' => $_aff_info['scheme_id'], 'affiliate_scheme_name' => $_aff_info['scheme_name'],			'affiliate_scheme_link' => $this->url->link('mta/mta/update', 'token=' . $this->session->data['token'] . '&id=' . $_aff_info['scheme_id'], 'SSL'),
+							'mta_order_id' => $_aff_info['mta_order_id']
+						);			
+						$__ars[] = $__ar;
+					}		
+					$__ar2 = array();
+					foreach($__ars as $__r) {
+						if(!isset($__ar2[$__r['mta_order_id']])) $__ar2[$__r['mta_order_id']] = array();
+						$__ar2[$__r['mta_order_id']][] = $__r;							
+					}
+					ksort($__ar2);
+					foreach($__ar2 as $_moi => $__r) {
+						$__sz = sizeof($__r);
+						$__ar2[$_moi] = $__r[0];								
+						if($__sz > 1) $__ar2[$_moi]['data'] = $__r;
+						$__ar2[$_moi]['num_rows'] = $__sz;
+					}					
+					$this->data['affiliates'] = array_values($__ar2);
+				}
+			} else {
+				$this->data['affiliate'] = '';			
+				$this->data['affiliates'] = '';			
+			}			
+			//+mod by yp end
+			
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" offset="1"><![CDATA[function addCommission]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		if(!isset($this->request->get['order_id']) || !mta_check_int($this->request->get['order_id']) || $this->request->get['order_id'] < 1 || !$this->user->hasPermission('modify', 'sale/order')) {
+			$this->response->setOutput(json_encode(array('error' => $this->language->get('error_action'))));
+			return;
+		}
+		
+		if(isset($this->request->request['affiliate_id'])) {
+			$this->_addMtaCommission($this->request->get['order_id'], $this->request->request['affiliate_id']);
+			return;
+		}
+		//+mod by yp end
+]]></add>
+		</operation>
+		<operation>
+			<search position="after" offset="1"><![CDATA[function removeCommission]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		if(!isset($this->request->get['order_id']) || !mta_check_int($this->request->get['order_id']) || $this->request->get['order_id'] < 1 || !$this->user->hasPermission('modify', 'sale/order')) {
+			$this->response->setOutput(json_encode(array('error' => $this->language->get('error_action'))));
+			return;
+		}
+		
+		if(isset($this->request->request['affiliate_id'])) {
+			$this->_removeMtaCommission($this->request->get['order_id'], $this->request->request['affiliate_id']);
+			return;
+		}
+		//+mod by yp end		
+]]></add>
+		</operation>
+		<operation>
+			<search position="before" offset="1"><![CDATA[?>]]></search>
+			<add><![CDATA[
+	//+mod by yp start
+	private function _addMtaCommission($order_id, $affiliate_id) {
+		$this->language->load('sale/order');
+		$json = array();    	
+		
+		$this->load->model('sale/affiliate');
+		if($this->model_sale_affiliate->addMtaTransaction($order_id, $affiliate_id, $this->language->get('text_order_id') . ' #' . $order_id)) {
+			$json['success'] = $this->language->get('text_commission_added');
+		} else {
+			$json['error'] = $this->language->get('error_action');
+		}		
+		$this->response->setOutput(json_encode($json));
+  }	
+
+
+	private function _removeMtaCommission($order_id, $affiliate_id) {
+		$this->language->load('sale/order');
+		$json = array(); 
+
+		$this->load->model('sale/affiliate');
+		if($this->model_sale_affiliate->deleteMtaTransaction($order_id, $affiliate_id)) {
+			$json['success'] = $this->language->get('text_commission_added');
+		} else {
+			$json['error'] = $this->language->get('error_action');
+		}		
+		$this->response->setOutput(json_encode($json));		
+  }		
+	
+	//+mod by yp end
+]]></add>
+		</operation>
+	</file>	
+
+<file name="admin/controller/catalog/category.php">
+		<operation error="log">
+			<search position="after"><![CDATA[function update]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		if(isset($this->request->get['category_id']) && $this->request->get['category_id']) {
+			$this->load->language('mta/mta_pds');
+			$this->data['tab_commission'] = mta_jsstr($this->language->get('tab_commission'));
+			$this->data['mta_do_edit'] = true;
+			$this->data['mta_pds_url'] = mta_jsstr($this->url->link('mta/mta_pds', 'token=' . $this->session->data['token'] . '&type=c&id=' . intval($this->request->get['category_id']), 'SSL'));
+		}
+		//+mod by yp end	
+		]]></add>
+		</operation>	
+	</file>
+<file name="admin/controller/catalog/manufacturer.php">
+		<operation error="log">
+			<search position="after"><![CDATA[function update]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		if(isset($this->request->get['manufacturer_id']) && $this->request->get['manufacturer_id']) {
+			$this->load->language('mta/mta_pds');
+			$this->data['tab_commission'] = mta_jsstr($this->language->get('tab_commission'));
+			$this->data['mta_do_edit'] = true;
+			$this->data['mta_pds_url'] = mta_jsstr($this->url->link('mta/mta_pds', 'token=' . $this->session->data['token'] . '&type=m&id=' . intval($this->request->get['manufacturer_id']), 'SSL'));
+		}
+		//+mod by yp end	
+		]]></add>
+		</operation>	
+	</file>	
+<file name="admin/controller/sale/coupon.php">
+		<operation error="log">
+			<search position="after"><![CDATA[function update]]></search>
+			<add><![CDATA[
+		//+mod by yp start
+		if(isset($this->request->get['coupon_id']) && $this->request->get['coupon_id']) {
+			$this->load->language('mta/mta_pds');
+			$this->data['tab_commission'] = mta_jsstr($this->language->get('tab_commission'));
+			$this->data['mta_do_edit'] = true;
+			$this->data['mta_pds_url'] = mta_jsstr($this->url->link('mta/mta_pds', 'token=' . $this->session->data['token'] . '&type=coupon&id=' . intval($this->request->get['coupon_id']), 'SSL'));
+		}
+		//+mod by yp end	
+		]]></add>
+		</operation>	
+	</file>	
+<file name="admin/view/template/catalog/category_form.tpl">
+		<operation error="log">
+			<search position="before" offset="1"><![CDATA[$('#tabs a').tabs();]]></search>
+			<add><![CDATA[
+
+<?php //+mod by yp start
+	if(isset($mta_do_edit) && $mta_do_edit) {?>
+<script type="text/javascript"><!--
+$('#tabs').append('<a href="#tab-commission"><?php echo $tab_commission; ?></a>');
+$('#form').append('<div id="tab-commission"><div id="commission"></div></div>');
+$.ajax({url : '<?php echo $mta_pds_url;?>', dataType : 'html', success : function(_html) {
+			$('#commission').html(_html);
+		}
+	});
+//--></script> 
+<?php } //+mod by yp end  
+?>
+
+		]]></add>
+		</operation>	
+	</file>	
+<file name="admin/view/template/catalog/manufacturer_form.tpl">
+		<operation error="log">
+			<search position="before" offset="1"><![CDATA[$('#tabs a').tabs();]]></search>
+			<add><![CDATA[
+
+<?php //+mod by yp start
+	if(isset($mta_do_edit) && $mta_do_edit) {?>
+<script type="text/javascript"><!--
+$('#tabs').append('<a href="#tab-commission"><?php echo $tab_commission; ?></a>');
+$('#form').append('<div id="tab-commission"><div id="commission"></div></div>');
+$.ajax({url : '<?php echo $mta_pds_url;?>', dataType : 'html', success : function(_html) {
+			$('#commission').html(_html);
+		}
+	});
+//--></script> 
+<?php } //+mod by yp end  
+?>
+
+		]]></add>
+		</operation>	
+	</file>		
+<file name="admin/view/template/sale/coupon_form.tpl">
+		<operation error="log">
+			<search position="before" offset="1"><![CDATA[$('#tabs a').tabs();]]></search>
+			<add><![CDATA[
+
+<?php //+mod by yp start
+	if(isset($mta_do_edit) && $mta_do_edit) {?>
+<script type="text/javascript"><!--
+$('#tabs').append('<a href="#tab-commission"><?php echo $tab_commission; ?></a>');
+$('#form').append('<div id="tab-commission"><div id="commission"></div></div>');
+$.ajax({url : '<?php echo $mta_pds_url;?>', dataType : 'html', success : function(_html) {
+			$('#commission').html(_html);
+		}
+	});
+//--></script> 
+<?php } //+mod by yp end  
+?>
+
+		]]></add>
+		</operation>	
+	</file>	
+
+<file name="system/engine/controller.php">
+		<operation>
+			<search position="after"><![CDATA[$this->registry = $registry]]></search>
+			<add><![CDATA[
+//+mod by yp start
+if(!$this->config->get('mta_version') || $this->config->get('mta_version') < 130908) {
+	file_get_contents((defined('HTTP_CATALOG') ? HTTP_CATALOG : HTTP_SERVER) . 'mta_install.php');
+	$this->redirect(html_entity_decode($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8'));
+}
+//+mod by yp end
+		]]></add>
+		</operation>	
+	</file>	
+</modification>
