@@ -1,7 +1,7 @@
 <?php
 // Version
 define('VERSION', '1.5.6');
-
+//foo
 /* Testing non-beta */
 
 // Configuration
